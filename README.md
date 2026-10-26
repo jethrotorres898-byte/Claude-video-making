@@ -17,6 +17,9 @@ all muxed with ffmpeg.
 - `projects/side-hustle/`: "The Side Hustle", 52s dramatic neon-noir trailer (rim-lit silhouettes,
   letterbox, film grain, holographic UI, trailer score) with a deep narrator (script in `SCRIPT.md`).
   Output: `output/side-hustle.mp4`.
+- `projects/dog-story/`: "Rags to Riches: Dog Edition", 56s comedy with painted, shaded dogs; the
+  story is told through synthesized barks whose tone fits each moment, with "dog translation"
+  subtitles (script in `SCRIPT.md`). Output: `output/dog-story.mp4`.
 
 ## Layout
 
@@ -26,6 +29,8 @@ all muxed with ffmpeg.
   punchy captions); builds on stickkit's helpers.
 - `lib/noir.js`: the Neon Noir style (silhouette rig with rim light and lit faces, skylines,
   rain, bokeh, holo panels, grain/letterbox finish, subtitles).
+- `lib/doggo.js`: painted dog rig (breeds, fur shading, IK legs, jaw, ears, tail, accessories,
+  front-facing head), luxury car, props and translation subtitles.
 - `tools/voicekit.py`: shared voiceover pipeline (Kokoro + Whisper check + timings + mouth envelopes).
 - `tools/render.js`: renders a page to MP4 or PNG stills with Playwright + ffmpeg.
 - `tools/synth.py`: numpy instruments, sound effects, mixer and reverb.
@@ -55,6 +60,18 @@ ffmpeg -y -i $S/video.mp4 -i $S/mix.wav -c:v copy -c:a aac -b:a 192k -shortest -
 
 Same models and steps as above, from `projects/class-story/` or `projects/side-hustle/` (their
 `voice.py` takes the same arguments; `music.py` reads `voice.js` and `voice.wav`).
+
+## Rebuild "Rags to Riches: Dog Edition"
+
+No voice models needed: `timeline.js` drives both the animation and `music.py`, which
+synthesizes every bark, effect and the score into one track.
+
+```sh
+S=/tmp/build && mkdir -p $S
+node tools/render.js projects/dog-story/index.html $S/video.mp4 --fps 30 --scale 1.5
+python3 projects/dog-story/music.py $S/audio.wav
+ffmpeg -y -i $S/video.mp4 -i $S/audio.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart output/dog-story.mp4
+```
 
 ## Rebuild "The Student & The Teacher"
 

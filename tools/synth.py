@@ -341,3 +341,126 @@ def sub_drop(dur=1.6):
     t = tt(dur)
     ph = 2 * np.pi * np.cumsum(70 * np.exp(-t * 1.6) + 28) / SR
     return np.sin(ph) * np.exp(-t * 1.4) * 0.9
+
+
+# ---------- dog voice ----------
+def _dog_src(f, rough=0.35, noise=0.25, seed=0):
+    """Glottal pulse train with period-doubling roughness and breath noise."""
+    r = np.random.default_rng(seed)
+    f = f * (1 + 0.012 * r.standard_normal(len(f)).cumsum() / np.sqrt(np.arange(1, len(f) + 1)))
+    ph = np.cumsum(f) / SR
+    pulse = (ph % 1.0) ** 3 - 0.25
+    pulse *= 1 + rough * np.sin(np.pi * ph)
+    return pulse + noise * r.standard_normal(len(f))
+
+
+def _shape(src, formants):
+    return sum(_resonator(src, ff, bw) * g for ff, bw, g in formants)
+
+
+def bark(f0=420, dur=0.17, vel=1.0, seed=0, formants=((750, 160, 1.0), (1500, 220, 0.6), (2700, 320, 0.3)), question=False):
+    """One bark: fast attack, pitch rise-then-fall (or rise for a questioning "boof?")."""
+    t = tt(dur)
+    u = t / dur
+    if question:
+        contour = 0.85 + 0.45 * u ** 1.5
+    else:
+        contour = (0.85 + 0.35 * np.sin(np.pi * np.minimum(u * 1.4, 1))) * (1 - 0.15 * u)
+    src = _dog_src(f0 * contour, 0.45, 0.35, seed)
+    y = _shape(src, formants)
+    y = onepole(y, 0.08 + 0.5 * np.sin(np.pi * np.minimum(u * 1.6, 1)))  # "w..uf" opening and closing
+    env = (1 - np.exp(-t * 400)) * np.exp(-((u - 0.28) / 0.42) ** 2)
+    y = np.tanh(y / (np.max(np.abs(y)) + 1e-9) * 2.6) * env
+    return y * vel * 0.6
+
+
+def woof(vel=1.0, seed=1):
+    """Big confident dog: deep and round."""
+    return bark(190, 0.3, vel, seed, ((520, 120, 1.0), (1050, 180, 0.55), (2300, 300, 0.2)))
+
+
+def yip(f0=880, vel=1.0, seed=2):
+    """Small dog yip."""
+    return bark(f0, 0.085, vel, seed, ((1050, 200, 1.0), (2300, 300, 0.5), (3600, 400, 0.2)))
+
+
+def whine(f_start=980, f_end=720, dur=1.3, vel=1.0, seed=3):
+    """Sad whimper: nasal, tonal, wavering, with little breaks."""
+    t = tt(dur)
+    u = t / dur
+    f = (f_start + (f_end - f_start) * u) * (1 + 0.035 * np.sin(2 * np.pi * 6.5 * t)) * (1 + 0.08 * np.sin(np.pi * u))
+    src = _dog_src(f, 0.05, 0.06, seed)
+    y = _shape(src, ((1150, 90, 1.0), (2600, 160, 0.5)))
+    breaks = 1 - 0.6 * np.clip(np.sin(2 * np.pi * 2.3 * t + 1) - 0.7, 0, 1) / 0.3
+    env = np.sin(np.pi * u) ** 0.7 * breaks
+    return y / (np.max(np.abs(y)) + 1e-9) * env * vel * 0.45
+
+
+def howl(dur=2.6, vel=1.0, seed=4):
+    """Dramatic "awoooo": glide up, hold with vibrato, sink; vowel moves from /a/ to /u/."""
+    t = tt(dur)
+    u = t / dur
+    f = np.interp(u, [0, 0.3, 0.75, 1], [380, 640, 580, 430]) * (1 + 0.025 * np.sin(2 * np.pi * 5.2 * t) * np.clip(u * 3, 0, 1))
+    src = _dog_src(f, 0.08, 0.08, seed)
+    a = _shape(src, ((760, 110, 1.0), (1250, 150, 0.6), (2700, 250, 0.2)))
+    o = _shape(src, ((420, 90, 1.0), (820, 120, 0.6), (2500, 250, 0.15)))
+    k = np.clip(u * 1.6 - 0.2, 0, 1)
+    y = a * (1 - k) + o * k
+    env = np.clip(u * 8, 0, 1) * np.clip((1 - u) * 4, 0, 1)
+    return y / (np.max(np.abs(y)) + 1e-9) * env * vel * 0.5
+
+
+def growl(dur=1.0, vel=1.0, seed=5):
+    """Low rattling growl."""
+    t = tt(dur)
+    u = t / dur
+    r = np.random.default_rng(seed)
+    f = 105 * (1 + 0.08 * np.sin(2 * np.pi * 1.3 * t)) + 4 * r.standard_normal(len(t))
+    src = _dog_src(f, 0.9, 0.5, seed) * (1 + 0.85 * np.sin(2 * np.pi * 27 * t))
+    y = _shape(src, ((420, 110, 1.0), (980, 180, 0.5), (2200, 300, 0.15)))
+    env = np.clip(u * 6, 0, 1) * np.clip((1 - u) * 5, 0, 1)
+    return np.tanh(y / (np.max(np.abs(y)) + 1e-9) * 2) * env * vel * 0.5
+
+
+def huff(vel=1.0, seed=6):
+    """Nasal exhale / smug little huff."""
+    t = tt(0.22)
+    n = np.random.default_rng(seed).standard_normal(len(t))
+    y = _resonator(n, 950, 300) + 0.4 * _resonator(n, 2400, 500)
+    return y / (np.max(np.abs(y)) + 1e-9) * np.exp(-t * 14) * (1 - np.exp(-t * 300)) * vel * 0.45
+
+
+def stomach(dur=1.1, vel=1.0, seed=7):
+    """Hungry stomach gurgle."""
+    t = tt(dur)
+    r = np.random.default_rng(seed)
+    f = 70 + 50 * np.abs(np.sin(2 * np.pi * 1.7 * t)) + 15 * np.sin(2 * np.pi * 9 * t)
+    src = _dog_src(f, 0.6, 0.3, seed) * (0.6 + 0.4 * np.sin(2 * np.pi * (4 + 3 * r.random()) * t) ** 2)
+    y = _shape(src, ((300, 80, 1.0), (700, 150, 0.3)))
+    env = np.sin(np.pi * t / dur) ** 1.5
+    return y / (np.max(np.abs(y)) + 1e-9) * env * vel * 0.5
+
+
+def grumble(dur=0.8, vel=1.0, seed=8):
+    """Determined low "mrrrf"."""
+    t = tt(dur)
+    u = t / dur
+    f = np.interp(u, [0, 0.5, 1], [150, 190, 140])
+    src = _dog_src(f, 0.5, 0.25, seed) * (1 + 0.4 * np.sin(2 * np.pi * 18 * t))
+    y = _shape(src, ((500, 120, 1.0), (1100, 180, 0.5)))
+    env = np.sin(np.pi * u) ** 0.8
+    return y / (np.max(np.abs(y)) + 1e-9) * env * vel * 0.45
+
+
+def record_scratch():
+    t = tt(0.5)
+    f = 300 + 900 * np.abs(np.sin(2 * np.pi * 2.2 * t)) * np.exp(-t * 2)
+    n = np.random.default_rng(9).standard_normal(len(t))
+    y = _resonator(n, 1, 1) * 0 + onepole(n, 0.3 + 0.2 * np.sin(2 * np.pi * 9 * t)) * np.sin(2 * np.pi * np.cumsum(f) / SR)
+    return y / (np.max(np.abs(y)) + 1e-9) * np.exp(-t * 4) * 0.5
+
+
+def horn(dur=0.35, f=420):
+    t = tt(dur)
+    s = sum(np.sign(np.sin(2 * np.pi * f * k * t)) / k for k in (1, 1.26))
+    return onepole(s, np.full(len(t), 0.25)) * np.clip(t * 60, 0, 1) * np.clip((dur - t) * 30, 0, 1) * 0.3
