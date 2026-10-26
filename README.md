@@ -20,6 +20,9 @@ all muxed with ffmpeg.
 - `projects/dog-story/`: "Rags to Riches: Dog Edition", 56s comedy with painted, shaded dogs; the
   story is told through synthesized barks whose tone fits each moment, with "dog translation"
   subtitles (script in `SCRIPT.md`). Output: `output/dog-story.mp4`.
+- `projects/dog-story-2/`: "Rags to Riches 2: The Glow Up", 62s sequel: cheated on, taught by a
+  painted TJR, the ex comes back and gets rejected, gown reveal and a delivery-dog punchline
+  (script in `SCRIPT.md`). Output: `output/dog-story-2.mp4`.
 
 ## Layout
 
@@ -31,6 +34,9 @@ all muxed with ffmpeg.
   rain, bokeh, holo panels, grain/letterbox finish, subtitles).
 - `lib/doggo.js`: painted dog rig (breeds, fur shading, IK legs, jaw, ears, tail, accessories,
   front-facing head), luxury car, props and translation subtitles.
+- `lib/human.js`: painted human rig (side view) used for TJR in the dog episodes.
+- `lib/dogscene.js`: shared dog-episode scene helpers (camera, bark-driven jaws, poses, rain,
+  bricks, scooter, paparazzi, splash).
 - `tools/voicekit.py`: shared voiceover pipeline (Kokoro + Whisper check + timings + mouth envelopes).
 - `tools/render.js`: renders a page to MP4 or PNG stills with Playwright + ffmpeg.
 - `tools/synth.py`: numpy instruments, sound effects, mixer and reverb.
@@ -61,10 +67,11 @@ ffmpeg -y -i $S/video.mp4 -i $S/mix.wav -c:v copy -c:a aac -b:a 192k -shortest -
 Same models and steps as above, from `projects/class-story/` or `projects/side-hustle/` (their
 `voice.py` takes the same arguments; `music.py` reads `voice.js` and `voice.wav`).
 
-## Rebuild "Rags to Riches: Dog Edition"
+## Rebuild "Rags to Riches: Dog Edition" (and part 2)
 
 No voice models needed: `timeline.js` drives both the animation and `music.py`, which
-synthesizes every bark, effect and the score into one track.
+synthesizes every bark, effect and the score into one track. For part 2 use
+`projects/dog-story-2/` and `output/dog-story-2.mp4` in the commands below.
 
 ```sh
 S=/tmp/build && mkdir -p $S
