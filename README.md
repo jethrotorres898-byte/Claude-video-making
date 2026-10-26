@@ -14,6 +14,9 @@ all muxed with ffmpeg.
 - `projects/class-story/`: "They Laughed In Class", 48s energetic story in my own "Inkman"
   style (front-facing rubber-hose stickmen, bright comic worlds, beat-synced cuts), with five
   voices and a synthesized class laugh (script in `SCRIPT.md`). Output: `output/class-story.mp4`.
+- `projects/side-hustle/`: "The Side Hustle", 52s dramatic neon-noir trailer (rim-lit silhouettes,
+  letterbox, film grain, holographic UI, trailer score) with a deep narrator (script in `SCRIPT.md`).
+  Output: `output/side-hustle.mp4`.
 
 ## Layout
 
@@ -21,6 +24,9 @@ all muxed with ffmpeg.
   props, charts, voice-synced captions).
 - `lib/inkman.js`: the Inkman style (front-facing rig, accessories, sunbursts, slam text,
   punchy captions); builds on stickkit's helpers.
+- `lib/noir.js`: the Neon Noir style (silhouette rig with rim light and lit faces, skylines,
+  rain, bokeh, holo panels, grain/letterbox finish, subtitles).
+- `tools/voicekit.py`: shared voiceover pipeline (Kokoro + Whisper check + timings + mouth envelopes).
 - `tools/render.js`: renders a page to MP4 or PNG stills with Playwright + ffmpeg.
 - `tools/synth.py`: numpy instruments, sound effects, mixer and reverb.
 
@@ -45,10 +51,10 @@ ffmpeg -y -i projects/millionaire-story/voice.wav -i $S/music.wav -filter_comple
 ffmpeg -y -i $S/video.mp4 -i $S/mix.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart output/millionaire-story.mp4
 ```
 
-## Rebuild "They Laughed In Class"
+## Rebuild "They Laughed In Class" / "The Side Hustle"
 
-Same models and steps as above, from `projects/class-story/` (its `voice.py` takes the same
-arguments; `music.py` reads `voice.js` and `voice.wav`).
+Same models and steps as above, from `projects/class-story/` or `projects/side-hustle/` (their
+`voice.py` takes the same arguments; `music.py` reads `voice.js` and `voice.wav`).
 
 ## Rebuild "The Student & The Teacher"
 

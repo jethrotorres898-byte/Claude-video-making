@@ -280,3 +280,64 @@ def crowd_laugh(voices=((120, 0.0), (140, 0.09), (170, 0.17)), n=5):
     for k, p in enumerate(parts):
         out[:len(p)] += p * (1.0 - 0.12 * k)
     return out / (np.max(np.abs(out)) + 1e-9) * 0.6
+
+
+# ---------- cinematic ----------
+def braam(m=36, dur=2.6, vel=1.0):
+    """Trailer brass "BRAAAM": detuned saws through a swelling lowpass, saturated."""
+    t = tt(dur)
+    f = hz(m)
+    s = np.zeros_like(t)
+    for mult, det in ((1, 0), (1, 0.006), (1, -0.007), (2, 0.003), (0.5, 0)):
+        ph = (f * mult * (1 + det) * t) % 1.0
+        s += (2 * ph - 1) * (0.5 if mult == 2 else 1.0)
+    u = t / dur
+    cut = 0.02 + 0.12 * np.exp(-((u - 0.12) / 0.18) ** 2) + 0.02 * (1 - u)
+    s = onepole(onepole(s, cut), cut)
+    env = np.minimum(1, t / 0.06) * np.exp(-t * 0.9)
+    return np.tanh(s * 2.2) * env * vel * 0.5
+
+
+def taiko(vel=1.0):
+    t = tt(0.9)
+    ph = 2 * np.pi * np.cumsum(46 + 60 * np.exp(-t * 18)) / SR
+    n = onepole(rng.standard_normal(len(t)), np.full(len(t), 0.08))
+    return (np.sin(ph) * np.exp(-t * 4.5) + n * np.exp(-t * 22) * 0.8) * vel
+
+
+def choir(m, dur, vel=1.0, att=0.8, vowel=((800, 80), (1150, 90), (2900, 120))):
+    """Formant "aah" choir pad: three detuned voices with vibrato."""
+    t = tt(dur + 0.8)
+    out = np.zeros_like(t)
+    for k, det in enumerate((-0.006, 0.0, 0.007)):
+        f = hz(m) * (1 + det) * (1 + 0.006 * np.sin(2 * np.pi * (5 + k * 0.4) * t + k))
+        src = ((np.cumsum(f) / SR) % 1.0) * 2 - 1
+        out += sum(_resonator(src, ff, bw) * (1.0, 0.6, 0.25)[i] for i, (ff, bw) in enumerate(vowel))
+    env = np.minimum(1, t / att)
+    out = release(out * env, dur, 0.8)
+    return out / (np.max(np.abs(out)) + 1e-9) * 0.3 * vel
+
+
+def saw_stab(m, dur=0.14, vel=1.0):
+    t = tt(dur + 0.05)
+    s = (((hz(m) * t) % 1.0) * 2 - 1) + (((hz(m) * 1.004 * t) % 1.0) * 2 - 1)
+    s = onepole(s, np.full(len(t), 0.18))
+    return s * np.exp(-t * 14) * (1 - np.exp(-t * 600)) * vel * 0.25
+
+
+def hum(dur, vel=1.0):
+    t = tt(dur)
+    s = sum(np.sin(2 * np.pi * 60 * h * t) / h for h in (1, 2, 3, 5))
+    return s * vel * 0.05
+
+
+def zap():
+    t = tt(0.35)
+    ph = 2 * np.pi * np.cumsum(1400 * np.exp(-t * 9) + 60) / SR
+    return (np.sign(np.sin(ph)) * 0.4 + rng.standard_normal(len(t)) * 0.5) * np.exp(-t * 10) * 0.4
+
+
+def sub_drop(dur=1.6):
+    t = tt(dur)
+    ph = 2 * np.pi * np.cumsum(70 * np.exp(-t * 1.6) + 28) / SR
+    return np.sin(ph) * np.exp(-t * 1.4) * 0.9
