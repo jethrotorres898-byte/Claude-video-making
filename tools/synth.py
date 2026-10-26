@@ -238,3 +238,45 @@ def engine(dur, rev=None):
     s *= 1 + 0.25 * np.sin(2 * np.pi * 9 * t)
     n = onepole(rng.standard_normal(len(t)), np.full(len(t), 0.03))
     return (s * 0.5 + n * 1.2) * (0.6 + 0.6 * r)
+
+
+def _resonator(x, f, bw):
+    """Two-pole formant resonator."""
+    r = np.exp(-np.pi * bw / SR)
+    c1, c2 = 2 * r * np.cos(2 * np.pi * f / SR), -r * r
+    y = np.zeros_like(x)
+    y1 = y2 = 0.0
+    g = 1 - r
+    for i in range(len(x)):
+        v = g * x[i] + c1 * y1 + c2 * y2
+        y[i] = v
+        y2, y1 = y1, v
+    return y
+
+
+def laugh(f0=140, n=5, syl=0.17, gap=0.05, seed=0, formants=((900, 100), (1450, 120), (2800, 170))):
+    """Cartoon "ha-ha-ha" laughter by formant synthesis: aspirated onset, voiced /a/, falling pitch."""
+    r = np.random.default_rng(seed)
+    out = []
+    for k in range(n):
+        t = tt(syl)
+        u = t / syl
+        f = f0 * (1.12 - 0.22 * k / max(1, n - 1)) * (1 + 0.06 * (1 - u)) * (1 + 0.01 * r.standard_normal())
+        ph = np.cumsum(f) / SR
+        glot = (ph % 1.0) ** 3 - 0.25  # bright pulse train
+        voiced = glot * np.clip((u - 0.18) * 6, 0, 1) * np.clip((1 - u) * 5, 0, 1)
+        breath = r.standard_normal(len(t)) * (np.exp(-u * 9) * 0.9 + 0.12)
+        src = voiced * 1.4 + breath * 0.5
+        y = sum(_resonator(src, ff, bw) * (1.0, 0.7, 0.35)[i] for i, (ff, bw) in enumerate(formants))
+        out += [y * (1 - 0.15 * k / n), np.zeros(int(gap * SR))]
+    s = np.concatenate(out)
+    return s / (np.max(np.abs(s)) + 1e-9) * 0.5
+
+
+def crowd_laugh(voices=((120, 0.0), (140, 0.09), (170, 0.17)), n=5):
+    """Several laughs layered; the pitches here were checked to read as "ha ha" with Whisper."""
+    parts = [np.pad(laugh(f0, n, seed=f0), (int(off * SR), 0)) for f0, off in voices]
+    out = np.zeros(max(len(p) for p in parts))
+    for k, p in enumerate(parts):
+        out[:len(p)] += p * (1.0 - 0.12 * k)
+    return out / (np.max(np.abs(out)) + 1e-9) * 0.6

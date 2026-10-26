@@ -11,11 +11,16 @@ all muxed with ffmpeg.
 - `projects/millionaire-story/`: "How I Got This Car", 70s vertical stickman story with a
   first-person voiceover, lip sync and word-by-word captions (script in `SCRIPT.md`).
   Output: `output/millionaire-story.mp4`.
+- `projects/class-story/`: "They Laughed In Class", 48s energetic story in my own "Inkman"
+  style (front-facing rubber-hose stickmen, bright comic worlds, beat-synced cuts), with five
+  voices and a synthesized class laugh (script in `SCRIPT.md`). Output: `output/class-story.mp4`.
 
 ## Layout
 
 - `lib/stickkit.js`: shared animation toolkit (stickman rig, faces, hair/beard/shades,
   props, charts, voice-synced captions).
+- `lib/inkman.js`: the Inkman style (front-facing rig, accessories, sunbursts, slam text,
+  punchy captions); builds on stickkit's helpers.
 - `tools/render.js`: renders a page to MP4 or PNG stills with Playwright + ffmpeg.
 - `tools/synth.py`: numpy instruments, sound effects, mixer and reverb.
 
@@ -39,6 +44,11 @@ ffmpeg -y -i projects/millionaire-story/voice.wav -i $S/music.wav -filter_comple
   -map "[a]" -ar 44100 $S/mix.wav
 ffmpeg -y -i $S/video.mp4 -i $S/mix.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart output/millionaire-story.mp4
 ```
+
+## Rebuild "They Laughed In Class"
+
+Same models and steps as above, from `projects/class-story/` (its `voice.py` takes the same
+arguments; `music.py` reads `voice.js` and `voice.wav`).
 
 ## Rebuild "The Student & The Teacher"
 
