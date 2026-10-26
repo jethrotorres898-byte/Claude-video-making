@@ -1,14 +1,46 @@
 # Claude video making
 
 Videos rendered from code: HTML/SVG animations stepped frame by frame in headless
-Chromium, with a soundtrack synthesized in numpy and muxed by ffmpeg.
+Chromium, soundtracks synthesized in numpy, voiceovers from Kokoro text-to-speech,
+all muxed with ffmpeg.
 
 ## Projects
 
-- `projects/tjr-story/`: "The Student & The Teacher", a 40s vertical stickman trading story
-  (script in `SCRIPT.md`). Output: `output/tjr-story.mp4`.
+- `projects/tjr-story/`: "The Student & The Teacher", 40s vertical stickman story told with
+  captions (script in `SCRIPT.md`). Output: `output/tjr-story.mp4`.
+- `projects/millionaire-story/`: "How I Got This Car", 70s vertical stickman story with a
+  first-person voiceover, lip sync and word-by-word captions (script in `SCRIPT.md`).
+  Output: `output/millionaire-story.mp4`.
 
-## Rebuild a video
+## Layout
+
+- `lib/stickkit.js`: shared animation toolkit (stickman rig, faces, hair/beard/shades,
+  props, charts, voice-synced captions).
+- `tools/render.js`: renders a page to MP4 or PNG stills with Playwright + ffmpeg.
+- `tools/synth.py`: numpy instruments, sound effects, mixer and reverb.
+
+## Rebuild "How I Got This Car"
+
+Voice models (not committed, too large): Kokoro-82M q8 from the npm package
+`kokoro-q8-shards` (join the 6 parts), voices from the `kokoro-js` npm package
+(`voices/*.bin`, packed into an `.npz`), and Whisper small for timings from
+`@skillninja/shortmovie-telop-model-p0..p3`. Python deps: `kokoro-onnx`,
+`faster-whisper`, `soundfile`.
+
+```sh
+cd projects/millionaire-story
+python voice.py --kokoro kokoro-q8.onnx --voices voices.npz --whisper whisper-small/ --out .
+cd ../..
+S=/tmp/build && mkdir -p $S
+node tools/render.js projects/millionaire-story/index.html $S/video.mp4 --fps 30 --scale 1.5
+python3 projects/millionaire-story/music.py $S/music.wav
+ffmpeg -y -i projects/millionaire-story/voice.wav -i $S/music.wav -filter_complex \
+  "[0:a]aresample=44100,pan=stereo|c0=c0|c1=c0[v];[v][1:a]amix=inputs=2:normalize=0:duration=longest,loudnorm=I=-14:TP=-1.5:LRA=11[a]" \
+  -map "[a]" -ar 44100 $S/mix.wav
+ffmpeg -y -i $S/video.mp4 -i $S/mix.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart output/millionaire-story.mp4
+```
+
+## Rebuild "The Student & The Teacher"
 
 ```sh
 S=/tmp/build && mkdir -p $S
