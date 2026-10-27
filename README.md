@@ -23,6 +23,9 @@ all muxed with ffmpeg.
 - `projects/dog-story-2/`: "Rags to Riches 2: The Glow Up", 62s sequel: cheated on, taught by a
   painted TJR, the ex comes back and gets rejected, gown reveal and a delivery-dog punchline
   (script in `SCRIPT.md`). Output: `output/dog-story-2.mp4`.
+- `projects/dog-story-3/`: "Rags to Riches 3: Brodie", 70s: a beagle fired in the rain meets TJR at a
+  bus stop, two years of lessons, then he buys the store that fired him. TJR speaks in a synthetic voice
+  with lip sync (script in `SCRIPT.md`). Output: `output/dog-story-3.mp4`.
 
 ## Layout
 
@@ -34,12 +37,12 @@ all muxed with ffmpeg.
   rain, bokeh, holo panels, grain/letterbox finish, subtitles).
 - `lib/doggo.js`: painted dog rig (breeds, fur shading, IK legs, jaw, ears, tail, accessories,
   front-facing head), luxury car, props and translation subtitles.
-- `lib/human.js`: painted human rig (side view) used for TJR in the dog episodes.
+- `lib/human.js`: painted human rig (side view, angular face, lip sync) used for TJR in the dog episodes.
 - `lib/dogscene.js`: shared dog-episode scene helpers (camera, bark-driven jaws, poses, rain,
   bricks, scooter, paparazzi, splash).
 - `tools/voicekit.py`: shared voiceover pipeline (Kokoro + Whisper check + timings + mouth envelopes).
 - `tools/render.js`: renders a page to MP4 or PNG stills with Playwright + ffmpeg.
-- `tools/synth.py`: numpy instruments, sound effects, mixer and reverb.
+- `tools/synth.py`: numpy instruments, sound effects, foley, dog voices, mixer and reverb.
 
 ## Rebuild "How I Got This Car"
 
@@ -79,6 +82,9 @@ node tools/render.js projects/dog-story/index.html $S/video.mp4 --fps 30 --scale
 python3 projects/dog-story/music.py $S/audio.wav
 ffmpeg -y -i $S/video.mp4 -i $S/audio.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart output/dog-story.mp4
 ```
+
+For part 3 (`projects/dog-story-3/`), TJR's lines are pre-rendered in `voice.flac`; to regenerate them
+run its `voice.py` with the same model arguments as above, then build as for the other dog episodes.
 
 ## Rebuild "The Student & The Teacher"
 

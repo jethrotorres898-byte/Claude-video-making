@@ -464,3 +464,179 @@ def horn(dur=0.35, f=420):
     t = tt(dur)
     s = sum(np.sign(np.sin(2 * np.pi * f * k * t)) / k for k in (1, 1.26))
     return onepole(s, np.full(len(t), 0.25)) * np.clip(t * 60, 0, 1) * np.clip((dur - t) * 30, 0, 1) * 0.3
+
+
+# ---------- foley ----------
+def _noise(n, seed):
+    return np.random.default_rng(seed).standard_normal(n)
+
+
+def thunder(dur=3.2, seed=11):
+    """Close lightning crack, then a rolling low rumble with a few swells."""
+    t = tt(dur)
+    n = _noise(len(t), seed)
+    crack = np.diff(np.concatenate([[0], n])) * np.exp(-t * 14)
+    rum = onepole(onepole(n, np.full(len(t), 0.01)), np.full(len(t), 0.03))
+    r = np.random.default_rng(seed)
+    swell = sum(np.exp(-((t - r.uniform(0.1, dur * 0.6)) / r.uniform(0.15, 0.5)) ** 2) for _ in range(5))
+    rum = rum / (np.max(np.abs(rum)) + 1e-9) * (0.35 + swell) * np.exp(-t * 1.1) * np.clip(t * 20, 0, 1)
+    y = crack * 0.35 + rum
+    return y / (np.max(np.abs(y)) + 1e-9) * 0.9
+
+
+def door_bang(vel=1.0, seed=12):
+    """Door flung open into its stop: wooden knock + rattle."""
+    t = tt(0.45)
+    knock = np.sin(2 * np.pi * np.cumsum(110 + 90 * np.exp(-t * 30)) / SR) * np.exp(-t * 16)
+    rattle = onepole(_noise(len(t), seed), np.full(len(t), 0.3)) * np.exp(-t * 9) * (0.6 + 0.4 * np.sin(2 * np.pi * 38 * t))
+    return (knock * 0.8 + rattle * 0.35) * vel
+
+
+def door_slam(vel=1.0, seed=13):
+    """Heavy slam with a glass shiver."""
+    t = tt(0.9)
+    body = np.sin(2 * np.pi * np.cumsum(70 + 60 * np.exp(-t * 25)) / SR) * np.exp(-t * 9)
+    hit = onepole(_noise(len(t), seed), np.full(len(t), 0.5)) * np.exp(-t * 40)
+    glass = sum(np.sin(2 * np.pi * f * t + k) for k, f in enumerate((3100, 4270, 5530))) * np.exp(-t * 7) * 0.05
+    return (body + hit * 0.6 + glass) * vel * 0.8
+
+
+def clonk(f=520, vel=1.0):
+    """Hollow plastic bowl bonk."""
+    t = tt(0.35)
+    s = np.sin(2 * np.pi * f * t) + 0.5 * np.sin(2 * np.pi * f * 1.48 * t) * np.exp(-t * 10)
+    return s * np.exp(-t * 14) * (1 - np.exp(-t * 900)) * vel * 0.5
+
+
+def boing(vel=1.0):
+    t = tt(0.5)
+    f = 180 + 260 * (1 - np.exp(-t * 6)) + 40 * np.sin(2 * np.pi * 14 * t) * np.exp(-t * 4)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 5) * vel * 0.45
+
+
+def drumroll(dur=1.0, vel=1.0, seed=14):
+    t = tt(dur)
+    rate = 18 + 10 * t / dur
+    hits = (np.sin(2 * np.pi * np.cumsum(rate) / SR) > 0.6).astype(float)
+    sn = np.diff(np.concatenate([[0], _noise(len(t), seed)])) * hits
+    return onepole(sn, np.full(len(t), 0.5)) * (0.4 + 0.6 * t / dur) * vel * 0.35
+
+
+def cha_ching(vel=1.0):
+    """Cash register: drawer clunk + bright bell pair."""
+    a = np.zeros(int(1.4 * SR))
+    clunk = thud_short()
+    a[:len(clunk)] += clunk * 0.6
+    for k, m in enumerate((100, 105)):
+        b = bell(m, 1.2, 1.0)
+        i = int((0.06 + k * 0.08) * SR)
+        a[i:i + len(b)] += b[: len(a) - i] * 2.2
+    return a * vel
+
+
+def thud_short():
+    t = tt(0.18)
+    return np.sin(2 * np.pi * np.cumsum(90 + 60 * np.exp(-t * 50)) / SR) * np.exp(-t * 30)
+
+
+def twinkle(vel=1.0):
+    a = np.zeros(int(1.2 * SR))
+    for k, m in enumerate((88, 91, 95, 100, 103)):
+        b = bell(m, 0.6, 0.8)
+        i = int(k * 0.07 * SR)
+        a[i:i + len(b)] += b[: len(a) - i]
+    return a * vel
+
+
+def marker_squeak(dur=0.4, seed=15):
+    t = tt(dur)
+    f = 2400 + 500 * np.sin(2 * np.pi * 3 * t) + 120 * _noise(len(t), seed)
+    s = np.sin(2 * np.pi * np.cumsum(f) / SR) * (0.5 + 0.5 * (np.sin(2 * np.pi * 23 * t) > 0))
+    return onepole(s, np.full(len(t), 0.4)) * np.sin(np.pi * t / dur) * 0.12
+
+
+def page_flip(seed=16):
+    t = tt(0.16)
+    n = _noise(len(t), seed)
+    return onepole(np.diff(np.concatenate([[0], n])), 0.2 + 0.6 * t / 0.16) * np.sin(np.pi * t / 0.16) * 0.5
+
+
+def notif(vel=1.0):
+    """Phone notification: two soft marimba-like tones."""
+    a = np.zeros(int(0.9 * SR))
+    for k, m in enumerate((84, 91)):
+        t = tt(0.5)
+        s = (np.sin(2 * np.pi * hz(m) * t) + 0.3 * np.sin(2 * np.pi * hz(m) * 4 * t) * np.exp(-t * 30)) * np.exp(-t * 9)
+        i = int(k * 0.12 * SR)
+        a[i:i + len(s)] += s
+    return a * vel * 0.3
+
+
+def brake_squeal(dur=0.7, seed=17):
+    t = tt(dur)
+    f = 2100 + 140 * np.sin(2 * np.pi * 7 * t) + 300 * t
+    s = np.sin(2 * np.pi * np.cumsum(f) / SR) + 0.4 * np.sin(2 * np.pi * np.cumsum(f * 1.5) / SR)
+    hiss = onepole(_noise(len(t), seed), np.full(len(t), 0.4))
+    env = np.clip(t * 20, 0, 1) * np.clip((dur - t) * 6, 0, 1)
+    return (s * 0.12 + hiss * 0.15) * env
+
+
+def paper_rustle(dur=0.5, seed=18):
+    t = tt(dur)
+    n = np.diff(np.concatenate([[0], _noise(len(t), seed)]))
+    crinkle = (np.random.default_rng(seed).random(len(t)) < 0.004).astype(float)
+    crinkle = np.convolve(crinkle, np.exp(-np.arange(200) / 30), mode='same')
+    y = n * (0.15 + crinkle) * np.sin(np.pi * t / dur)
+    return y / (np.max(np.abs(y)) + 1e-9) * 0.45
+
+
+def slide_whistle(f0=1400, f1=260, dur=0.6):
+    t = tt(dur)
+    f = f0 * (f1 / f0) ** (t / dur) * (1 + 0.01 * np.sin(2 * np.pi * 6 * t))
+    s = np.sin(2 * np.pi * np.cumsum(f) / SR)
+    breath = onepole(_noise(len(t), 19), np.full(len(t), 0.2)) * 0.15
+    return (s + breath) * np.clip(t * 30, 0, 1) * np.clip((dur - t) * 10, 0, 1) * 0.3
+
+
+def tweet(seed=20):
+    """A little bird chirp."""
+    r = np.random.default_rng(seed)
+    t = tt(0.09)
+    f = r.uniform(3200, 4200) + 1800 * np.sin(np.pi * t / 0.09)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.sin(np.pi * t / 0.09) * 0.18
+
+
+def crunch(vel=1.0, seed=21):
+    """Dry kibble crunch: a burst of tiny cracks."""
+    t = tt(0.22)
+    r = np.random.default_rng(seed)
+    imp = (r.random(len(t)) < 0.02 * np.exp(-t * 10)).astype(float) * r.uniform(0.3, 1, len(t))
+    y = np.convolve(imp, _noise(120, seed) * np.exp(-np.arange(120) / 25), mode='same')
+    y = np.diff(np.concatenate([[0], y]))
+    return y / (np.max(np.abs(y)) + 1e-9) * vel * 0.55
+
+
+def gulp(vel=1.0):
+    t = tt(0.3)
+    f = 260 * np.exp(-t * 6) + 90
+    s = np.sin(2 * np.pi * np.cumsum(f) / SR)
+    return onepole(s, np.full(len(t), 0.15)) * np.sin(np.pi * np.clip(t / 0.25, 0, 1)) * vel * 0.8
+
+
+def splash(seed=22):
+    t = tt(0.9)
+    n = _noise(len(t), seed)
+    return onepole(n, 0.25 * np.exp(-t * 2) + 0.03) * np.exp(-t * 3.5) * 0.9
+
+
+def clink(vel=1.0):
+    t = tt(0.3)
+    s = sum(np.sin(2 * np.pi * f * t) for f in (1900, 2870, 4100))
+    return s * np.exp(-t * 18) * vel * 0.08
+
+
+def rain_noise(dur, level=0.02, seed=0):
+    n = np.random.default_rng(seed).standard_normal(int(dur * SR))
+    n = np.diff(np.concatenate([[0], n])) * level
+    fade = np.minimum(1, np.minimum(np.arange(len(n)), len(n) - np.arange(len(n))) / (0.3 * SR))
+    return n * fade
