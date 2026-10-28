@@ -27,6 +27,16 @@ all muxed with ffmpeg.
   bus stop, two years of lessons, then he buys the store that fired him. TJR speaks in a synthetic voice
   with lip sync (script in `SCRIPT.md`). Output: `output/dog-story-3.mp4`.
 
+- `projects/toon-test/`: 8s motion test of the new toon style (Brodie walks in, turns, waves and
+  barks; TJR answers with lip sync). Output: `output/toon-test.mp4`.
+
+## Cast (toon style)
+
+`cast/sheets/` holds front / side / back model sheets for every character in the toon style (bold
+ink outlines, flat colours, tufted fur, characters standing upright) plus a cast lineup: Brodie,
+the Boss, the Stray, Bella, Coco, the Bulldog and TJR (`golden.png` is the style reference match).
+Rebuild with `SCALE=1.5 node tools/sheets.js cast/sheets lineup brodie boss stray bella coco bulldog tjr golden`.
+
 ## Layout
 
 - `lib/stickkit.js`: shared animation toolkit (stickman rig, faces, hair/beard/shades,
@@ -38,10 +48,14 @@ all muxed with ffmpeg.
 - `lib/doggo.js`: painted dog rig (breeds, fur shading, IK legs, jaw, ears, tail, accessories,
   front-facing head), luxury car, props and translation subtitles.
 - `lib/human.js`: painted human rig (side view, angular face, lip sync) used for TJR in the dog episodes.
+- `lib/toon.js`: the toon style: one parametric upright dog rig (breeds, ears, build, tails,
+  markings, outfits) and a matching human rig for TJR, each drawable from the front, side or back,
+  with IK limbs, jaw/mouth, blinks and expressions for animation.
 - `lib/dogscene.js`: shared dog-episode scene helpers (camera, bark-driven jaws, poses, rain,
   bricks, scooter, paparazzi, splash).
 - `tools/voicekit.py`: shared voiceover pipeline (Kokoro + Whisper check + timings + mouth envelopes).
 - `tools/render.js`: renders a page to MP4 or PNG stills with Playwright + ffmpeg.
+- `tools/sheets.js`: renders the cast model sheets (`cast/sheet.html`) to PNG.
 - `tools/synth.py`: numpy instruments, sound effects, foley, dog voices, mixer and reverb.
 
 ## Rebuild "How I Got This Car"
