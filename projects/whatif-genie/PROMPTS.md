@@ -18,13 +18,13 @@ Hand-drawn digital ink illustration in the exact same style as the attached Clyd
 ## 2. POP
 
 ```
-Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. the Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) bursts out of the golden lamp in a huge puff of white smoke, arms spread wide, grinning proudly. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) falls backwards off the sofa in shock, eyes popping, hair standing on end.
+Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. The Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) bursts out of the golden lamp in a huge puff of white smoke, arms spread wide, grinning proudly. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) falls backwards off the sofa in shock, eyes popping, hair standing on end.
 ```
 
 ## 3. "You get ONE wish!"
 
 ```
-Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. the Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) floats proudly above his lamp holding up one finger, sparkles around his hand. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) looks up at him with an excited open-mouthed smile.
+Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. The Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) floats proudly above his lamp holding up one finger, sparkles around his hand. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) looks up at him with an excited open-mouthed smile.
 ```
 
 ## 4. Scheming at the camera
@@ -36,7 +36,7 @@ Hand-drawn digital ink illustration in the exact same style as the attached Clyd
 ## 5. "The rules are—"
 
 ```
-Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. the Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) lectures with one finger raised, unrolling a very long scroll of rules that spills onto the floor. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) smirks and raises one finger to interrupt him.
+Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. The Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) lectures with one finger raised, unrolling a very long scroll of rules that spills onto the floor. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) smirks and raises one finger to interrupt him.
 ```
 
 ## 6. "TIME STOP" (Mogger)
@@ -48,7 +48,7 @@ Hand-drawn digital ink illustration in the exact same style as the attached Clyd
 ## 7. "WHAT?! I haven't finished the rules yet!"
 
 ```
-Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. the Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) looks shocked and outraged, eyes bulging, moustache sticking straight out, the scroll of rules slipping out of his hands, sweat drops flying. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) stands calmly in the foreground.
+Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. The Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) looks shocked and outraged, eyes bulging, moustache sticking straight out, the scroll of rules slipping out of his hands, sweat drops flying. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) stands calmly in the foreground.
 ```
 
 ## 8. "TA-IME... STOP" (Mogger, more dramatic)
@@ -60,7 +60,7 @@ Hand-drawn digital ink illustration in the exact same style as the attached Clyd
 ## 9. "NO!"
 
 ```
-Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. the Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) is furious: bright red face, steam blasting out of his ears, mouth wide open shouting, fists clenched, turban slightly askew.
+Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. The Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) is furious: bright red face, steam blasting out of his ears, mouth wide open shouting, fists clenched, turban slightly askew.
 ```
 
 ## 10. "MIND CONTROL"
@@ -72,7 +72,7 @@ Hand-drawn digital ink illustration in the exact same style as the attached Clyd
 ## 11. "I cannot give you that. You can wish for anything else."
 
 ```
-Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. the Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) floats with his arms firmly crossed, eyes closed, nose in the air, refusing. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) gives him a skeptical, unimpressed look.
+Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. The Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) floats with his arms firmly crossed, eyes closed, nose in the air, refusing. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) gives him a skeptical, unimpressed look.
 ```
 
 ## 12. "Okay... then I wish that you give me a random ability."
@@ -84,7 +84,7 @@ Hand-drawn digital ink illustration in the exact same style as the attached Clyd
 ## 13. "Your wish is my..."
 
 ```
-Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. the Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) happily casts magic with his eyes closed and a blissful smile; golden sparkles stream from his hands toward Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs), who winks at the camera.
+Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. The Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) happily casts magic with his eyes closed and a blissful smile; golden sparkles stream from his hands toward Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs), who winks at the camera.
 ```
 
 ## 14. "TIME STOP!" (cutting in)
@@ -96,13 +96,13 @@ Hand-drawn digital ink illustration in the exact same style as the attached Clyd
 ## 15. "...command."
 
 ```
-Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. the Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) finishes with a grand bow, one hand on his chest, eyes still closed, totally unaware. A glowing golden clock appears above the head of Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs), who looks smug.
+Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. The Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) finishes with a grand bow, one hand on his chest, eyes still closed, totally unaware. A glowing golden clock appears above the head of Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs), who looks smug.
 ```
 
 ## 16. "Wait... NOOO!"
 
 ```
-Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. the Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) realises in horror: hands pressed to his cheeks, eyes huge, mouth stretched long. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) grins wickedly inside a glowing clock-shaped aura.
+Hand-drawn digital ink illustration in the exact same style as the attached Clyde character sheet: thick, slightly rough black outlines, flat muted colours with light texture, full detailed background, 16:9 landscape, no text, no speech bubbles. Setting: Clyde's cosy living room with a worn sofa, a window with curtains and a round rug. The Genie from the attached genie sheet (turquoise skin, red turban with a gold jewel, huge curly black moustache, purple vest, smoky tail rising from a golden oil lamp) realises in horror: hands pressed to his cheeks, eyes huge, mouth stretched long. Clyde from the attached sheet (stickman with a big round white head, messy spiky dark-brown hair, simple face, white body, thin limbs) grins wickedly inside a glowing clock-shaped aura.
 ```
 
 ## 17. Time stops
