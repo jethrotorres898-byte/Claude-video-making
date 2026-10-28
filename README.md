@@ -37,6 +37,14 @@ ink outlines, flat colours, tufted fur, characters standing upright) plus a cast
 the Boss, the Stray, Bella, Coco, the Bulldog and TJR (`golden.png` is the style reference match).
 Rebuild with `SCALE=1.5 node tools/sheets.js cast/sheets lineup brodie boss stray bella coco bulldog tjr golden`.
 
+## Clyde ("What If" channel)
+
+`cast/clyde/` holds the reference sheets for Clyde, the "What If" channel's character: a stickman
+with a round white head, messy spiky brown hair, a white body and stick limbs, drawn in a loose ink
+style on cream paper. The sheets cover his expressions (excited, curious, confused, angry, sad,
+shocked, disgusted, determined, silly, scared, exhausted, dizzy, mind-blown, panicked, smug, in love,
+enraged, crying, scheming...), body poses, and "Mogger", his chiselled glow-up face for punchlines.
+
 ## Layout
 
 - `lib/stickkit.js`: shared animation toolkit (stickman rig, faces, hair/beard/shades,
