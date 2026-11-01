@@ -29,6 +29,9 @@ all muxed with ffmpeg.
 
 - `projects/toon-test/`: 8s motion test of the new toon style (Brodie walks in, turns, waves and
   barks; TJR answers with lip sync). Output: `output/toon-test.mp4`.
+- `projects/flytrap-fact/`: "A Venus flytrap can count", 45s 16:9 plant fact in the creator's
+  watercolor paper-cut style, narrated with their own ElevenLabs voice; every beat is cued to a word
+  of the narration (script and shot list in `SCRIPT.md`). Output: `output/flytrap-fact.mp4`.
 
 ## Cast (toon style)
 
@@ -61,7 +64,11 @@ enraged, crying, scheming...), body poses, and "Mogger", his chiselled glow-up f
   with IK limbs, jaw/mouth, blinks and expressions for animation.
 - `lib/dogscene.js`: shared dog-episode scene helpers (camera, bark-driven jaws, poses, rain,
   bricks, scooter, paparazzi, splash).
+- `lib/watercolor.js`: the watercolor paper-cut style (painted-fill filters with mottling, hue
+  drift, granulation and wet edges; white paper borders with soft shadows; gradients and path helpers).
 - `tools/voicekit.py`: shared voiceover pipeline (Kokoro + Whisper check + timings + mouth envelopes).
+- `tools/align.py`: word timings for any narration file (faster-whisper), written as `words.js`.
+- `tools/bake.js`: rasterizes a page's static layers to transparent PNGs so slow filters run once.
 - `tools/render.js`: renders a page to MP4 or PNG stills with Playwright + ffmpeg.
 - `tools/sheets.js`: renders the cast model sheets (`cast/sheet.html`) to PNG.
 - `tools/synth.py`: numpy instruments, sound effects, foley, dog voices, mixer and reverb.
@@ -85,6 +92,22 @@ ffmpeg -y -i projects/millionaire-story/voice.wav -i $S/music.wav -filter_comple
   "[0:a]aresample=44100,pan=stereo|c0=c0|c1=c0[v];[v][1:a]amix=inputs=2:normalize=0:duration=longest,loudnorm=I=-14:TP=-1.5:LRA=11[a]" \
   -map "[a]" -ar 44100 $S/mix.wav
 ffmpeg -y -i $S/video.mp4 -i $S/mix.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart output/millionaire-story.mp4
+```
+
+## Rebuild "A Venus flytrap can count"
+
+`voice.mp3` is the creator's narration. Re-align it (or a new recording) with Whisper small
+(see above), bake the static layers, render, then mix:
+
+```sh
+S=/tmp/build && mkdir -p $S && P=projects/flytrap-fact
+python3 tools/align.py $P/voice.mp3 $P/words.js --whisper whisper-small/ --prompt "$(cat $P/narration.txt)"
+node tools/bake.js $P/index.html $P/baked --scale 1.6 --only sky,far,mid,trees,near,stump,fg
+node tools/bake.js $P/index.html $P/baked --scale 1 --only bokeh
+node tools/render.js $P/index.html $S/video.mp4 --width 1920 --height 1080 --scale 1
+python3 $P/sound.py $S/mix.wav
+ffmpeg -y -i $S/mix.wav -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 44100 $S/mix_norm.wav
+ffmpeg -y -i $S/video.mp4 -i $S/mix_norm.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart output/flytrap-fact.mp4
 ```
 
 ## Rebuild "They Laughed In Class" / "The Side Hustle"

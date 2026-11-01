@@ -5,6 +5,7 @@
 //
 // Usage:
 //   node tools/render.js <page.html> <out.mp4> [--fps 30] [--scale 1.5] [--from 0] [--to DURATION]
+//                        [--width 720 --height 1280]   (viewport size in CSS px)
 //   node tools/render.js <page.html> <out-dir> --stills 0.5,3.2,10   (PNG previews)
 const { chromium } = require('playwright');
 const { spawn } = require('child_process');
@@ -12,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 function parseArgs(argv) {
-  const opts = { fps: 30, scale: 1.5 };
+  const opts = { fps: 30, scale: 1.5, width: 720, height: 1280 };
   const pos = [];
   for (let i = 0; i < argv.length; i++) {
     if (argv[i].startsWith('--')) opts[argv[i].slice(2)] = argv[++i];
@@ -26,7 +27,7 @@ function parseArgs(argv) {
   const fps = +args.fps;
   const browser = await chromium.launch();
   const page = await browser.newPage({
-    viewport: { width: 720, height: 1280 },
+    viewport: { width: +args.width, height: +args.height },
     deviceScaleFactor: +args.scale,
   });
   page.on('pageerror', (e) => console.error('page error:', e.message));

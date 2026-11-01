@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>A Venus flytrap can count</title>
+<style>
+  @font-face { font-family: 'PatrickHand'; src: url('../../assets/fonts/PatrickHand.woff2') format('woff2'); }
+  html, body { margin: 0; background: #f3ead6; overflow: hidden; }
+  #stage { display: block; width: 1920px; height: 1080px; }
+  html.bake, body.bake { background: transparent; }
+  body.bake #paper { display: none; }
+  #paper { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; mix-blend-mode: multiply; opacity: 0.55; pointer-events: none; }
+</style>
+</head>
+<body>
+<svg id="stage" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg>
+<img id="paper" src="tex/paper.png">
+<script src="../../lib/watercolor.js"></script>
+<script src="art.js"></script>
+<script src="words.js"></script>
+<script src="cues.js"></script>
+<script src="anim.js"></script>
+</body>
+</html>
