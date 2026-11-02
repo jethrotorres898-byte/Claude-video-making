@@ -29,6 +29,8 @@ all muxed with ffmpeg.
 
 - `projects/toon-test/`: 8s motion test of the new toon style (Brodie walks in, turns, waves and
   barks; TJR answers with lip sync). Output: `output/toon-test.mp4`.
+- `projects/rickclips-study/`: style study of five RicksClips3000 shorts: script formula, lighting,
+  contrast, camera, editing, effects and caption specs (`STUDY.md`) plus the five transcripts.
 - `projects/flytrap-fact/`: "A Venus flytrap can count", 45s 16:9 plant fact in the creator's
   watercolor paper-cut style, narrated with their own ElevenLabs voice; every beat is cued to a word
   of the narration (script and shot list in `SCRIPT.md`). Output: `output/flytrap-fact.mp4`.
@@ -69,6 +71,9 @@ enraged, crying, scheming...), body poses, and "Mogger", his chiselled glow-up f
 - `tools/voicekit.py`: shared voiceover pipeline (Kokoro + Whisper check + timings + mouth envelopes).
 - `tools/align.py`: word timings for any narration file (faster-whisper), written as `words.js`.
 - `tools/bake.js`: rasterizes a page's static layers to transparent PNGs so slow filters run once.
+- `tools/caption_ocr.py`, `tools/shots.py`, `tools/frame_stats.py`: video study tools: read burned-in
+  word-by-word captions with timings (needs `tesseract-ocr`, scipy), detect hard cuts and dissolves,
+  and measure per-frame brightness, contrast, colour and motion.
 - `tools/render.js`: renders a page to MP4 or PNG stills with Playwright + ffmpeg.
 - `tools/sheets.js`: renders the cast model sheets (`cast/sheet.html`) to PNG.
 - `tools/synth.py`: numpy instruments, sound effects, foley, dog voices, mixer and reverb.
