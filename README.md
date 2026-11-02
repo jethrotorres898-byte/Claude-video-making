@@ -29,6 +29,10 @@ all muxed with ffmpeg.
 
 - `projects/toon-test/`: 8s motion test of the new toon style (Brodie walks in, turns, waves and
   barks; TJR answers with lip sync). Output: `output/toon-test.mp4`.
+- `projects/flytrap-live/`: "A Venus flytrap can count", 54s vertical frame-by-frame version made from
+  the creator's 15 pictures (`shots/`), with their ElevenLabs narration plus a recorded call to action,
+  word-by-word captions, sound effects and music; every cut and beat is tied to a word of the voice.
+  Output: `output/flytrap-live.mp4`.
 - `projects/livingroom-live/`: 9s vertical flipbook made from the creator's own living-room frame
   (`source.jpg`): every one of the 270 frames is the original picture with small changes made from its
   own pixels (his glance, head tilt and happy blink; the cat's blink, slow blink and tail sway; both
@@ -75,6 +79,9 @@ enraged, crying, scheming...), body poses, and "Mogger", his chiselled glow-up f
 - `tools/voicekit.py`: shared voiceover pipeline (Kokoro + Whisper check + timings + mouth envelopes).
 - `tools/align.py`: word timings for any narration file (faster-whisper), written as `words.js`.
 - `tools/bake.js`: rasterizes a page's static layers to transparent PNGs so slow filters run once.
+- `tools/livepic.py`: living-picture toolkit for frame-by-frame animation of still illustrations from
+  their own pixels (warps, cut-out sprites over rebuilt backgrounds, blinks and lip-sync, rain, dust,
+  glows, drops, camera moves, captions).
 - `tools/caption_ocr.py`, `tools/shots.py`, `tools/frame_stats.py`: video study tools: read burned-in
   word-by-word captions with timings (needs `tesseract-ocr`, scipy), detect hard cuts and dissolves,
   and measure per-frame brightness, contrast, colour and motion.
@@ -102,6 +109,21 @@ ffmpeg -y -i projects/millionaire-story/voice.wav -i $S/music.wav -filter_comple
   -map "[a]" -ar 44100 $S/mix.wav
 ffmpeg -y -i $S/video.mp4 -i $S/mix.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart output/millionaire-story.mp4
 ```
+
+## Rebuild "A Venus flytrap can count" (frame-by-frame)
+
+```sh
+cd projects/flytrap-live
+python3 ../../tools/align.py voice_main.mp3 words_main.js --whisper whisper-small/ --prompt "$(cat ../flytrap-fact/narration.txt)"
+python3 ../../tools/align.py voice_cta.mp3 words_cta.js --whisper whisper-small/
+python3 voice.py                                 # joins the two takes -> voice.wav, words.json
+python3 edit.py /tmp/video.mp4 --workers 4       # 1610 frames
+python3 sound.py /tmp/mix.wav
+ffmpeg -y -i /tmp/mix.wav -af loudnorm=I=-14:TP=-1.5:LRA=11 -ar 44100 /tmp/mix_norm.wav
+ffmpeg -y -i /tmp/video.mp4 -i /tmp/mix_norm.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart ../../output/flytrap-live.mp4
+```
+
+Needs scipy, opencv-python-headless and the Nunito Black font (`assets/fonts/Nunito-Black.ttf`, OFL).
 
 ## Rebuild the living-room flipbook
 

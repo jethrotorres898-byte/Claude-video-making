@@ -1,5 +1,9 @@
 # "A Venus flytrap can count": pictures for the frame-by-frame version
 
+**Status:** made. The creator's 15 pictures are in `shots/01-15.jpg`, in narration order: 01-12 match
+prompts 1-12, 13 is the extra thumbs-up picture (on "...that can count."), 14 and 15 match prompts 13
+and 14. Build steps are in the README.
+
 The frame-by-frame method brings real pictures to life, so it needs one picture per shot in your
 style. Make them in the same app you used for the living-room picture and attach that picture to
 every prompt. The prompts say to use it only for the art style and the character, and each prompt
