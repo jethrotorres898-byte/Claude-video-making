@@ -20,10 +20,13 @@ from scipy import ndimage
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', '..', 'tools'))
-from livepic import (FPS, OUT_H, OUT_W, Eye, Mark, Motes, Rain, Sprite, TextSprite, back, blink, bob, camera,  # noqa: E402
-                     clamp01, contrast_mask, grabcut_mask, drop, ease, ease_in, ease_out, find_highlights, glow, hold, inpaint, keys, load,
-                     noise1, poly_mask, pulse, ramp, region_mask, ripple_rings, ripple_warp, rot_warp, shake, shift_warp, soft,
-                     sparkle, sway, to_u8)
+from livepic import (FPS, OUT_H, OUT_W, Eye, Mark, Motes, Rain, Sprite, TextSprite, Wings, back, blink, bob, buzz, camera,  # noqa: E402
+                     clamp01, contrast_mask, drop, ease, ease_in, ease_out, find_highlights, fit_circle, glow, grabcut_mask, hold, inpaint,
+                     keys, load, noise1, poly_mask, pulse, ramp, region_mask, ripple_rings, ripple_warp, rot_warp, shake, shift_warp,
+                     soft, sparkle, sway, to_u8)
+from lipsync import MouthRig, frame_track, param_track, sample_style, segments  # noqa: E402
+sys.path.insert(0, HERE)
+from mouths import CFG as MOUTH_CFG, TEETH  # noqa: E402
 
 P = lambda *a: os.path.join(HERE, *a)  # noqa: E731
 FONT = P('..', '..', 'assets', 'fonts', 'Nunito-Black.ttf')
@@ -48,6 +51,26 @@ for v in _rms:
 def env(t):
     i = int(t * FPS)
     return ENV[i] if 0 <= i < len(ENV) else 0.0
+
+
+# ---------------- lip-sync: the standard mouth shapes, timed to the voice (tools/lipsync.py) ----------------
+NFR = int(END * FPS) + 2
+TRACK, STRESS = frame_track(segments(WORDS, ENV), NFR)
+STRESS_ON = [f / FPS for f in range(1, NFR) if STRESS[f] and not STRESS[f - 1]]
+
+
+def fidx(t):
+    return min(NFR - 1, max(0, int(round(t * FPS))))
+
+
+def talk_tilt(t, seed=0, amp=1.3):
+    """Head tilts that land on the stressed syllables, alternating sides (a talking head is never still)."""
+    a = 0.0
+    for k, ts in enumerate(STRESS_ON):
+        dt = t - ts
+        if 0 <= dt < 0.9:
+            a += (1.0 if k % 2 else -1.0) * amp * (dt / 0.12) * np.exp(1 - dt / 0.12)
+    return a + 0.5 * noise1(t * 0.6, seed)
 
 
 def cam(cx, cy, z, t, seed, shake_xy=(0.0, 0.0), rot=0.0):
@@ -82,7 +105,6 @@ def veg_weight(F, box, sigma=6):
 F1 = PIC[1]
 E1 = [Eye(F1, (586, 1116, 621, 1166)), Eye(F1, (708, 1119, 746, 1169))]
 B1 = [Mark(F1, (578, 1062, 622, 1095)), Mark(F1, (715, 1068, 764, 1104))]
-M1 = Mark(F1, (618, 1183, 720, 1256))
 MOTES1 = Motes((80, 200, 1100, 1250), n=38, seed=1)
 
 F2 = PIC[2]
@@ -111,10 +133,20 @@ RAIN5 = Rain(PW, PH, n=150, angle=6, seed=2, alpha=(0.14, 0.32))
 PUDDLE5 = [(140, 1500), (300, 1640), (900, 1560), (1020, 1700), (760, 1840), (220, 1880), (980, 1950), (520, 1960)]
 
 F6 = PIC[6]
-WING6 = soft(poly_mask(F6.shape, [(640, 990), (646, 905), (690, 860), (745, 856), (796, 878), (802, 940), (772, 986), (722, 1002)]), 6)
+WINGS6 = Wings(F6, poly_mask(F6.shape, [(645, 975), (650, 945), (668, 905), (695, 872), (722, 858), (748, 866), (772, 880), (800, 886), (814, 912),
+                                         (806, 948), (778, 974), (750, 980), (720, 970), (690, 962), (662, 966)])
+               & ~poly_mask(F6.shape, [(628, 1012), (638, 976), (660, 963), (690, 960), (720, 967), (752, 978), (778, 995), (784, 1012)]), (670, 972))
 SPARK6 = find_highlights(F6, (130, 520, 1060, 1700), n=16, min_dist=60)
 
 F7 = PIC[7]
+_spikes7 = ((F7 @ np.array([0.2126, 0.7152, 0.0722], np.float32)) > 0.6) & (F7[..., 1] - F7[..., 2] > 0.07)
+WINGS7 = [Wings(F7, poly_mask(F7.shape, [(425, 940), (455, 928), (500, 928), (540, 938), (562, 955), (562, 990), (540, 1006), (500, 1014),
+                                          (455, 1010), (428, 990)]), (560, 975), keep_front=_spikes7),
+          Wings(F7, poly_mask(F7.shape, [(638, 950), (675, 945), (715, 950), (735, 965), (730, 985), (700, 995), (660, 995), (638, 985)]),
+                (638, 970), keep_front=_spikes7)]
+BG7 = WINGS7[1].bg.copy()
+_x0, _y0, _x1, _y1 = WINGS7[0].box
+BG7[_y0:_y1, _x0:_x1] = WINGS7[0].bg[_y0:_y1, _x0:_x1]
 
 F8 = PIC[8]
 CHAR8_POLY = [(180, 560), (205, 492), (270, 478), (322, 525), (320, 612), (350, 700), (368, 640), (395, 568), (450, 530), (520, 524), (592, 545), (632, 598),
@@ -128,6 +160,16 @@ CLEAN8 = inpaint(F8, ndimage.binary_dilation(_m8, iterations=5), 7)
 
 F9 = PIC[9]
 E9 = [Eye(F9, (564, 1100, 593, 1134)), Eye(F9, (626, 1094, 658, 1128))]
+_hand9 = grabcut_mask(F9, [(482, 1196), (496, 1170), (511, 1155), (530, 1157), (543, 1177), (551, 1195), (570, 1201), (594, 1210), (610, 1228),
+                           (604, 1255), (576, 1268), (544, 1266), (518, 1250), (496, 1232)])
+_cuff9 = poly_mask(F9.shape, [(552, 1232), (584, 1214), (614, 1218), (626, 1250), (614, 1282), (584, 1286), (556, 1270)]) & (F9[..., 2] > F9[..., 0] + 0.03)
+_cuff9 = ndimage.binary_closing(_cuff9, iterations=2)
+HAND9 = Sprite(F9, _hand9 & ~_cuff9, pad=6)
+CUFF9 = Sprite(F9, _cuff9, pad=4, feather=0.7)
+CLEAN9 = inpaint(F9, ndimage.binary_dilation(_hand9 & ~_cuff9, iterations=4), 7)
+COUNT9 = [START[9] + 0.25 + 0.5 * k for k in range(5)]
+TRAP9 = [(462, 1292), (302, 1256), (222, 1378), (522, 1402), (198, 1518)]      # number positions, above the counted traps
+NUM9 = [TextSprite(str(k + 1), FONT, 92, fill=(255, 255, 255), stroke_w=9) for k in range(5)]
 
 F10 = PIC[10]
 TRAP10 = soft(poly_mask(F10.shape, [(430, 560), (520, 400), (640, 410), (760, 440), (860, 480), (930, 590), (985, 900), (990, 1160), (930, 1420), (800, 1590),
@@ -149,7 +191,6 @@ MOTES12 = Motes((60, 150, 1100, 1300), n=36, seed=5)
 
 F13 = PIC[13]
 E13 = [Eye(F13, (503, 727, 538, 774)), Eye(F13, (628, 732, 665, 780))]
-M13 = Mark(F13, (528, 799, 643, 861))
 MOTES13 = Motes((60, 150, 1100, 1300), n=34, seed=6)
 
 F14 = PIC[14]
@@ -160,22 +201,47 @@ MOTES14 = Motes((60, 150, 1100, 1300), n=34, seed=7)
 F15 = PIC[15]
 E15 = [Eye(F15, (541, 905, 576, 948)), Eye(F15, (633, 857, 671, 901))]
 _mb = contrast_mask(F15, (343, 1093, 448, 1192), thr=0.08)
-BEE15 = Sprite(F15, _mb, pad=4)
-CLEAN15 = inpaint(F15, ndimage.binary_dilation(_mb, iterations=4), 6)
+_bw = poly_mask(F15.shape, [(352, 1112), (360, 1096), (378, 1088), (395, 1092), (406, 1108), (402, 1128), (390, 1136), (370, 1133), (356, 1124)]) \
+    & ~poly_mask(F15.shape, [(378, 1140), (384, 1126), (398, 1124), (412, 1132), (412, 1150), (378, 1150)])
+WINGS15 = Wings(F15, _bw, (392, 1132))
+BEE15 = Sprite(F15, _mb & ~ndimage.binary_dilation(_bw, iterations=1), pad=4)
+CLEAN15 = inpaint(F15, ndimage.binary_dilation(_mb | _bw, iterations=4), 6)
 MOTES15 = Motes((60, 150, 1100, 1300), n=36, seed=8)
+
+
+_MS = sample_style(PIC[1], MOUTH_CFG[1]['sample'])
+
+
+def _mouth(n):
+    c = MOUTH_CFG[n]
+    smp = sample_style(PIC[n], c['sample']) if c['sample'] else _MS
+    st = dict(ink=smp['ink'], inner=smp['inner'] * 0.92, tongue=smp['tongue'], teeth=TEETH, **c['style'])
+    return MouthRig(PIC[n], c['erase'], c['c'], c['hw'], st)
+
+
+MOUTH = {n: _mouth(n) for n in MOUTH_CFG}
+MPAR = {n: param_track(TRACK, STRESS, ENV, MOUTH_CFG[n]['rest']) for n in MOUTH_CFG}
+HEAD = {n: fit_circle(PIC[n], c, r) for n, (c, r) in {1: ((710, 1140), 175), 2: ((577, 862), 312), 9: ((660, 1040), 140),
+                                                      12: ((675, 890), 225), 13: ((597, 750), 157), 14: ((665, 777), 285)}.items()}
+
+
+def head_tilt(F, n, ang):
+    """Tilt the head: the face rotates inside its round outline (which a rotation leaves unchanged)."""
+    (cx, cy), R = HEAD[n]
+    rot_warp(F, (cx, cy), ang, R - 5, R + 9)
 
 
 # =============== shot animations: (picture, camera) for global time t ===============
 def s1(t):
     F = F1.copy()
-    o = clamp01(env(t) * 1.15)
-    M1.draw(F, sy=0.36 + 0.64 * o, anchor=(M1.c[0], M1.top))
+    MOUTH[1].draw(F, MPAR[1][fidx(t)])
     lift = -5 * hold(t, at('count') - 0.12, 0.12, 0.55, 0.3)
     for b in B1:
         b.draw(F, dy=lift)
     for e in E1:
         e.blink(F, blink(t, [1.72, 3.75]))
-    bob(F, (520, 930, 900, 1840), 1.4 * np.sin(2 * np.pi * t / 3.2) + 1.6 * o, 1840, 1000)
+    head_tilt(F, 1, talk_tilt(t, 1, 1.4))
+    bob(F, (520, 930, 900, 1840), 1.4 * np.sin(2 * np.pi * t / 3.2) + 0.7 * clamp01(env(t)), 1840, 1000)
     sway(F, (290, 1190, 600, 1430), t, 3.0, 1430, 230, freq=0.45, k=0.01)
     sway(F, (120, 380, 500, 740), t, 4.0, 400, 320, freq=0.25, hang=True)
     sway(F, (730, 360, 1020, 820), t, 4.0, 380, 420, freq=0.22, phase=1.3, hang=True)
@@ -186,6 +252,7 @@ def s1(t):
 
 def s2(t):
     F = CLEAN2.copy()
+    MOUTH[2].draw(F, MPAR[2][fidx(t)])
     a = 0.0
     for tw in (at('no'), at('joke')):
         a += 8.0 * np.sin(2 * np.pi * 3.0 * (t - tw)) * hold(t, tw - 0.04, 0.08, 0.42, 0.15)
@@ -195,6 +262,7 @@ def s2(t):
         b.draw(F, dy=low)
     for e in E2:
         e.blink(F, blink(t, [START[2] + 1.15]))
+    head_tilt(F, 2, talk_tilt(t, 2, 0.9))
     bob(F, (160, 520, 1000, PH), 1.8 * np.sin(2 * np.pi * t / 3.0), PH, 1100)
     sway(F, (740, 1180, 1100, 1620), t, 3.0, 1600, 420, freq=0.4)
     t0 = START[2]
@@ -261,7 +329,7 @@ def s5(t):
 
 
 def s6(t):
-    F = F6.copy()
+    F = WINGS6.bg.copy()
     sway(F, (0, 300, 220, PH), t, 5.0, 2100, 1800, freq=0.3, k=0.004)
     sway(F, (930, 300, PW, PH), t, 5.0, 2100, 1800, freq=0.28, k=0.004, phase=1.7)
     glow(F, 576, 120, 420, (1.0, 0.96, 0.82), 0.06 + 0.03 * np.sin(2 * np.pi * t / 2.6))
@@ -269,7 +337,8 @@ def s6(t):
     ts = at('second') + 0.15
     st = ease((t - ts) / 0.25)
     shift_warp(F, (655, 1000), -8 * st, 2 * st, 115, 175)
-    rot_warp(F, (712, 982), 6.0 * np.sin(2 * np.pi * 13 * t), 1, 2, weight=WING6, box=(620, 840, 820, 1020))
+    angs, wts = buzz(fidx(t), -26, 16, spread=18, n=7)               # wings flip up / down every frame, motion-blurred
+    WINGS6.draw(F, angs, wts, dx=-8 * st, dy=2 * st)
     k = hold(t, FLY_TOUCH, 0.06, 0.5, 0.55)
     glow(F, 552, 1072, 24, (1.0, 0.86, 0.35), 0.9 * k)
     glow(F, 552, 1072, 7, (1.0, 0.98, 0.85), 0.9 * k)
@@ -283,11 +352,15 @@ DROPS7 = [((420, 640), (-380, -520)), ((700, 600), (360, -560)), ((560, 560), (-
 
 
 def s7(t):
-    F = F7.copy()
+    F = BG7.copy()
     d = max(0.0, t - SNAP)
     q = np.exp(-d / 0.16) * np.cos(2 * np.pi * 6.5 * d)
     rot_warp(F, (575, 1020), 0.0, 430, 640, scale=(1 + 0.07 * q, 1 - 0.07 * q))
-    shift_warp(F, (585, 990), 3 * noise1(t * 40, 1), 2 * noise1(t * 37, 3), 95, 140)
+    jx, jy = 2.5 * noise1(t * 40, 1), 1.8 * noise1(t * 37, 3)       # the trapped fly trembles...
+    shift_warp(F, (585, 990), jx, jy, 95, 140)
+    angs, wts = buzz(fidx(t), -13, 9, spread=10, n=5)                # ...and buzzes its wings in panic
+    WINGS7[0].draw(F, angs, wts, dx=jx, dy=jy)
+    WINGS7[1].draw(F, -angs, wts, dx=jx, dy=jy)
     if d < 0.6:
         for (x, y), (vx, vy) in DROPS7:
             drop(F, x + vx * d, y + vy * d + 1500 * d * d, 7, alpha=1 - d / 0.6)
@@ -310,14 +383,41 @@ def s8(t):
     return F, cam(cx, cy, z, t, 8, shake(t, SNAP, 13, 1.1))
 
 
+def count_pose(t):
+    """He counts the traps: for each one the hand lifts a little (anticipation), snaps down onto it,
+    holds a beat and eases back; it drifts toward the next trap and the head follows a moment later."""
+    ang, nod = 0.0, 0.0
+    for tb in COUNT9:
+        u = t - tb
+        if -0.12 <= u < 0.0:
+            ang += 5.0 * ease((u + 0.12) / 0.12)
+        elif 0.0 <= u < 0.07:
+            ang += 5.0 - 21.0 * ease_out(u / 0.07)
+        elif 0.07 <= u < 0.16:
+            ang -= 16.0
+        elif 0.16 <= u < 0.4:
+            ang -= 16.0 * (1 - ease((u - 0.16) / 0.24))
+        du = u - 0.05
+        if 0 <= du < 0.7:
+            nod += (du / 0.12) * np.exp(1 - du / 0.12)
+    dx = keys(t, [(COUNT9[0] - 0.2, 0.0)] + [(tb + 0.12, x, 'o') for tb, x in zip(COUNT9, (2.0, -6.0, -10.0, 0.0, -9.0))])
+    return ang, dx, nod
+
+
 def s9(t):
-    F = F9.copy()
-    taps = [at('doesnt') - 0.05, at('stop'), at('counting'), at('counting') + 0.42]
-    tap = sum(pulse(t, ti - 0.02, 0.22) for ti in taps)
+    F = CLEAN9.copy()
+    ang, dx, nod = count_pose(t)
+    k = sum(1 for tb in COUNT9 if t >= tb - 0.02) - 1
+    lx, ly = (-2.5, 1.5) if k >= 0 else (0.0, 0.0)
     for e in E9:
-        e.blink(F, blink(t, [START[9] + 2.05]))
-    rot_warp(F, (590, 1236), -7.0 * tap, 100, 140)
-    shift_warp(F, (660, 1040), 0, 3.0 * tap, 125, 165)
+        e.blink(F, blink(t, [START[9] + 2.05]), dx=lx * (1.2 if k in (1, 2, 4) else 0.6), dy=ly)
+    head_tilt(F, 9, -1.4 * nod)
+    HAND9.draw(F, dx=dx, ang=ang, pivot=(585, 1240))
+    CUFF9.draw(F, dx=dx * 0.5)
+    for i, (tb, (x, y)) in enumerate(zip(COUNT9, TRAP9)):
+        if t >= tb:
+            glow(F, x, y + 44, 30, (1.0, 0.88, 0.4), 0.7 * hold(t, tb, 0.05, 0.12, 0.5))
+            NUM9[i].draw(F, x, y - 10 * ease(ramp(t, tb, tb + 0.8)), scale=0.75 * back(ramp(t, tb, tb + 0.2), 2.2))
     ripple_warp(F, (560, 1810, 900, 1985), t, amp=1.8, k=0.09, speed=3.0)
     sway(F, (930, 780, PW, 1460), t, 4.0, 1460, 600, freq=0.3, k=0.006)
     sway(F, (0, 780, 250, 1520), t, 4.0, 1520, 700, freq=0.28, k=0.006, phase=1.1)
@@ -370,9 +470,11 @@ def s11(t):
 
 def s12(t):
     F = F12.copy()
+    MOUTH[12].draw(F, MPAR[12][fidx(t)])
     lift = -5 * ease(ramp(t, START[12], START[12] + 0.6))
     for b in B12:
         b.draw(F, dy=lift)
+    head_tilt(F, 12, talk_tilt(t, 12, 0.8))
     bob(F, (440, 640, 940, 1900), 1.4 * np.sin(2 * np.pi * t / 3.0), 1900, 900)
     sway(F, (220, 1010, 560, 1300), t, 3.0, 1300, 280, freq=0.5, k=0.012)
     sway(F, (790, 280, 1140, 680), t, 4.0, 300, 380, freq=0.24, hang=True)
@@ -384,14 +486,14 @@ def s12(t):
 
 def s13(t):
     F = F13.copy()
-    o = clamp01(env(t) * 1.15)
-    M13.draw(F, sy=0.5 + 0.5 * o, anchor=(M13.c[0], M13.top))
+    MOUTH[13].draw(F, MPAR[13][fidx(t)])
     for e in E13:
         e.blink(F, blink(t, [START[13] + 1.05]))
+    head_tilt(F, 13, talk_tilt(t, 13, 1.1))
     p = back(ramp(t, START[13], START[13] + 0.22)) * (1 - ramp(t, START[13] + 0.35, START[13] + 0.6)) + pulse(t, at('count', 2) - 0.02, 0.28)
     rot_warp(F, (690, 1150), 0.0, 72, 115, scale=(1 + 0.08 * p, 1 + 0.08 * p))
     shift_warp(F, (690, 1150), 0, -7 * p, 80, 120)
-    bob(F, (380, 560, 860, 1960), 1.4 * np.sin(2 * np.pi * t / 3.0) + 1.0 * o, 1960, 900)
+    bob(F, (380, 560, 860, 1960), 1.4 * np.sin(2 * np.pi * t / 3.0) + 0.6 * clamp01(env(t)), 1960, 900)
     sway(F, (0, 80, 370, 590), t, 4.0, 100, 480, freq=0.24, hang=True)
     sway(F, (810, 130, 1140, 500), t, 4.0, 150, 350, freq=0.26, phase=1.2, hang=True)
     sway(F, (300, 920, 590, 1130), t, 3.0, 1130, 200, freq=0.5, k=0.012)
@@ -402,6 +504,7 @@ def s13(t):
 
 def s14(t):
     F = F14.copy()
+    MOUTH[14].draw(F, MPAR[14][fidx(t)])
     w = 0.0
     for tb in (at('honest'), at('one', 2)):
         w += pulse(t, tb - 0.04, 0.2) + pulse(t, tb + 0.2, 0.2)
@@ -409,6 +512,7 @@ def s14(t):
         b.draw(F, dy=-9 * w)
     for e in E14:
         e.blink(F, blink(t, [at('tell') - 0.3, at('because') + 0.4]))
+    head_tilt(F, 14, talk_tilt(t, 14, 1.0))
     tq = at('finger')
     qd = t - tq
     q = np.exp(-qd / 0.13) * np.cos(2 * np.pi * 5.0 * qd) if qd >= 0 else 0.0
@@ -431,7 +535,15 @@ def s15(t):
     sway(F, (280, 1140, 680, 1620), t, 4.5, 1600, 460, freq=0.45, k=0.012)
     bob(F, (440, 680, 1000, 1880), 1.3 * np.sin(2 * np.pi * t / 3.1), 1880, 800)
     dx, dy = bee_offset(t)
-    BEE15.draw(F, dx=dx, dy=dy, ang=8 * np.sin(2 * np.pi * 0.55 * (t - START[15]) + 1.2), sy=1 + 0.05 * np.sin(2 * np.pi * 12 * t))
+    ang = 6 * np.sin(2 * np.pi * 0.55 * (t - START[15]) + 1.2)
+    bx, by = BEE15.c
+    rx, ry = WINGS15.root
+    a = np.deg2rad(ang)
+    wx = bx + np.cos(a) * (rx - bx) - np.sin(a) * (ry - by) + dx - rx       # the wings stay on the turning body
+    wy = by + np.sin(a) * (rx - bx) + np.cos(a) * (ry - by) + dy - ry
+    BEE15.draw(F, dx=dx, dy=dy + 1.2 * np.sin(2 * np.pi * 9 * t), ang=ang)
+    angs, wts = buzz(fidx(t), -30, 22, spread=20, n=7)
+    WINGS15.draw(F, angs + ang, wts, dx=wx, dy=wy)
     MOTES15.draw(F, t, 0.9)
     cx, cy, z = move(t, START[15] - 0.15, END, (560, 1150, 1.05), (520, 1120, 1.14))
     return F, cam(cx, cy, z, t, 15)

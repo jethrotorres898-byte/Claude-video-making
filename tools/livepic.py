@@ -291,6 +291,96 @@ class Sprite:
         reg[:] = reg * (1 - al) + pm * opacity
 
 
+def fit_circle(F, c, r, band=12, below=0.8, dark=0.36):
+    """Refine a circle (head outline) from a guess: least-squares fit to the ink pixels within
+    `band` px of the guessed circle, ignoring the bottom part (where the neck joins)."""
+    lum = F @ LUMW
+    yy, xx = np.nonzero(lum < dark)
+    cx, cy, R = float(c[0]), float(c[1]), float(r)
+    for _ in range(4):
+        d = np.hypot(xx - cx, yy - cy)
+        sel = (np.abs(d - R) < band) & (yy < cy + below * R)
+        if sel.sum() < 20:
+            break
+        X, Y = xx[sel].astype(np.float64), yy[sel].astype(np.float64)
+        A = np.c_[2 * X, 2 * Y, np.ones_like(X)]
+        sol = np.linalg.lstsq(A, X ** 2 + Y ** 2, rcond=None)[0]
+        cx, cy = sol[0], sol[1]
+        R = float(np.sqrt(sol[2] + cx * cx + cy * cy))
+    return (cx, cy), R
+
+
+class Wings:
+    """Translucent insect wings split from what is behind them, so they can be redrawn moving.
+
+    The picture becomes a background (wings removed, rebuilt by inpainting) plus a wing layer:
+    membrane where the wing is lighter than the background, veins and outline where it is darker,
+    each with the opacity that reproduces the original pixels exactly."""
+
+    def __init__(self, F, mask, root, membrane=(0.94, 0.95, 0.96), keep_front=None, floor=0.0):
+        H, W = mask.shape
+        ys, xs = np.nonzero(mask)
+        m = 6
+        self.box = (max(0, xs.min() - m), max(0, ys.min() - m), min(W, xs.max() + m + 1), min(H, ys.max() + m + 1))
+        x0, y0, x1, y1 = self.box
+        hole = ndimage.binary_dilation(mask, iterations=2)
+        self.bg = inpaint(F, hole, 9)
+        O, B = F[y0:y1, x0:x1], self.bg[y0:y1, x0:x1]
+        lo, lb = O @ LUMW, B @ LUMW
+        mem = np.array(membrane, np.float32)
+        ink = np.median(O[(lo < np.percentile(lo[mask[y0:y1, x0:x1]], 8)) & mask[y0:y1, x0:x1]], axis=0)
+        lighter = lo >= lb
+        a_mem = np.clip((lo - lb - 0.012) / np.maximum(float(mem @ LUMW) - lb, 0.05), 0, 1)   # small offset: paper grain is not wing
+        a_ink = np.clip((lb - lo - 0.012) / np.maximum(lb - float(ink @ LUMW), 0.05), 0, 1)
+        ms = soft(hole[y0:y1, x0:x1], 0.8) * soft(mask[y0:y1, x0:x1], 1.2)
+        self.a = np.where(lighter, np.maximum(a_mem, floor), a_ink) * ms
+        self.rgb = np.where(lighter[..., None], mem, ink).astype(np.float32)
+        self.pm = self.rgb * self.a[..., None]
+        self.root = root
+        self.front = None
+        if keep_front is not None:                       # things in front of the wings (e.g. trap spikes)
+            fm = keep_front[y0:y1, x0:x1] & hole[y0:y1, x0:x1]
+            self.front = (F[y0:y1, x0:x1].copy(), soft(fm, 0.7))
+            self.bg[y0:y1, x0:x1] = np.where(fm[..., None], F[y0:y1, x0:x1], self.bg[y0:y1, x0:x1])
+
+    def draw(self, F, angles, weights, dx=0.0, dy=0.0, scale=1.0):
+        """Composite the wing at each angle (deg, clockwise) about the root, with those opacities."""
+        x0, y0, x1, y1 = self.box
+        rx, ry = self.root
+        H, W = F.shape[:2]
+        R = int(max(x1 - x0, y1 - y0) * 1.2 * scale + abs(dx) + abs(dy) + 8)
+        X0, Y0, X1, Y1 = max(0, int(rx - R)), max(0, int(ry - R)), min(W, int(rx + R)), min(H, int(ry + R))
+        acc_pm = np.zeros((Y1 - Y0, X1 - X0, 3), np.float32)
+        acc_a = np.zeros((Y1 - Y0, X1 - X0), np.float32)
+        for ang, w in zip(angles, weights):
+            a = np.deg2rad(ang)
+            A = np.array([[np.cos(a), -np.sin(a)], [np.sin(a), np.cos(a)]]) * scale
+            t = A @ (np.array([x0, y0], np.float64) - (rx, ry)) + (rx + dx, ry + dy) - (X0, Y0)
+            M = np.hstack([A, t[:, None]])
+            size = (X1 - X0, Y1 - Y0)
+            pm = cv2.warpAffine(self.pm, M, size, flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+            al = cv2.warpAffine(self.a, M, size, flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+            acc_pm += pm * w
+            acc_a += al * w
+        acc_a = np.clip(acc_a, 0, 1)
+        reg = F[Y0:Y1, X0:X1]
+        reg[:] = reg * (1 - acc_a[..., None]) + np.clip(acc_pm, 0, 1)
+        if self.front is not None:
+            frgb, fa = self.front
+            r2 = F[y0:y1, x0:x1]
+            r2[:] = r2 * (1 - fa[..., None]) + frgb * fa[..., None]
+
+
+def buzz(frame, up, down, spread=16.0, n=6, opacity=1.0):
+    """Wing-beat angles for one frame: the wing is drawn as a motion-blur fan, alternating between
+    the up and the down half of the stroke every frame (the classic cartoon buzz)."""
+    c = up if frame % 2 == 0 else down
+    angs = np.linspace(c - spread / 2, c + spread / 2, n)
+    w = np.full(n, 0.9 / n * opacity)
+    w[n // 2] += 0.35 * opacity
+    return angs, w
+
+
 # ---------------- faces ----------------
 class Mark:
     """A dark mark on light skin (eye, brow, mouth): a clean skin patch plus a movable sprite."""
