@@ -29,6 +29,10 @@ all muxed with ffmpeg.
 
 - `projects/toon-test/`: 8s motion test of the new toon style (Brodie walks in, turns, waves and
   barks; TJR answers with lip sync). Output: `output/toon-test.mp4`.
+- `projects/livingroom-live/`: 9s vertical flipbook made from the creator's own living-room frame
+  (`source.jpg`): every one of the 270 frames is the original picture with small changes made from its
+  own pixels (his glance, head tilt and happy blink; the cat's blink, slow blink and tail sway; both
+  breathing; the curtain; a slow camera push). Output: `output/livingroom-live.mp4`.
 - `projects/rickclips-study/`: style study of five RicksClips3000 shorts: script formula, lighting,
   contrast, camera, editing, effects and caption specs (`STUDY.md`) plus the five transcripts.
 - `projects/flytrap-fact/`: "A Venus flytrap can count", 45s 16:9 plant fact in the creator's
@@ -98,6 +102,19 @@ ffmpeg -y -i projects/millionaire-story/voice.wav -i $S/music.wav -filter_comple
   -map "[a]" -ar 44100 $S/mix.wav
 ffmpeg -y -i $S/video.mp4 -i $S/mix.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart output/millionaire-story.mp4
 ```
+
+## Rebuild the living-room flipbook
+
+```sh
+cd projects/livingroom-live
+python3 bodies.py && python3 prep.py          # cut out the bodies and tail, rebuild what's behind them
+python3 live.py /tmp/video.mp4 --workers 4    # 270 frames
+python3 sound.py /tmp/sound.wav
+ffmpeg -y -i /tmp/sound.wav -af loudnorm=I=-16:TP=-1.5:LRA=11 -ar 44100 /tmp/sound_norm.wav
+ffmpeg -y -i /tmp/video.mp4 -i /tmp/sound_norm.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart ../../output/livingroom-live.mp4
+```
+
+Needs scipy and opencv-python-headless. `plate.png` is `source.jpg` cropped to 9:16 (caption band removed) and upscaled to 1080x1920.
 
 ## Rebuild "A Venus flytrap can count"
 
