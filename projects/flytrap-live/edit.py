@@ -34,7 +34,7 @@ PW, PH = 1152, 2048
 PIC = {n: load(P('shots', f'{n:02d}.jpg'), (PW, PH)) for n in range(1, 16)}
 
 # ---------------- narration ----------------
-from cues import CTA, CUTS, DROP_LAND, END, FLY_TOUCH, PUNCH5, PUNCH10, PUNCH14, SNAP, START, WIGGLES, WORDS, at, bee_offset, norm  # noqa: E402
+from cues import COUNT9, CTA, CUTS, DROP_LAND, END, FLY_TOUCH, PUNCH5, PUNCH10, PUNCH14, SNAP, START, WIGGLES, WORDS, at, bee_offset, norm  # noqa: E402
 
 with wave.open(P('voice.wav')) as f:
     _a = np.frombuffer(f.readframes(f.getnframes()), np.int16).astype(np.float32) / 32768
@@ -167,7 +167,6 @@ _cuff9 = ndimage.binary_closing(_cuff9, iterations=2)
 HAND9 = Sprite(F9, _hand9 & ~_cuff9, pad=6)
 CUFF9 = Sprite(F9, _cuff9, pad=4, feather=0.7)
 CLEAN9 = inpaint(F9, ndimage.binary_dilation(_hand9 & ~_cuff9, iterations=4), 7)
-COUNT9 = [START[9] + 0.25 + 0.5 * k for k in range(5)]
 TRAP9 = [(462, 1292), (302, 1256), (222, 1378), (522, 1402), (198, 1518)]      # number positions, above the counted traps
 NUM9 = [TextSprite(str(k + 1), FONT, 92, fill=(255, 255, 255), stroke_w=9) for k in range(5)]
 

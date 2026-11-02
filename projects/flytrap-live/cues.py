@@ -51,6 +51,7 @@ PUNCH5, PUNCH10, PUNCH14 = at('nothing') - 0.10, at('and', 3) - 0.10, at('yes') 
 DROP_LAND = at('one') + 0.02                               # raindrop lands on a trigger hair
 FLY_TOUCH = at('touched')                                  # the fly brushes the second hair
 WIGGLES = [at('struggles') + i * 0.75 for i in range(5)]   # the bug struggles, the trap counts
+COUNT9 = [START[9] + 0.25 + 0.5 * k for k in range(5)]      # he counts five traps, one every half second
 
 
 def bee_offset(t):

@@ -192,18 +192,35 @@ P = {
 KEYS = ['hw', 'top', 'bot', 'tu', 'tl', 'tongue', 'pucker', 'bite', 'up', 'press']
 
 
-def param_track(track, stress, energy, rest, open_scale=1.0):
+SOFT = dict(hw=0.86, top=-0.02, bot=0.11, tu=0.0, tl=0.0, tongue=0.0, pucker=0.0, bite=0.0, up=0.0, press=0.0)
+
+
+def param_track(track, stress, energy, rest, open_scale=1.0, short=15):
     """Smoothed per-frame parameters: the mouth moves most of the way to each new shape in one
-    frame (closures snap shut), louder and stressed sounds open wider."""
+    frame (closures snap shut), louder and stressed sounds open wider. In short pauses between
+    words the lips relax almost shut; only longer pauses return to the character's expression."""
+    soft_rest = [False] * len(track)
+    f = 0
+    while f < len(track):
+        if track[f] == 'X':
+            g = f
+            while g < len(track) and track[g] == 'X':
+                g += 1
+            if 0 < f and g < len(track) and g - f < short:
+                for k in range(f, g):
+                    soft_rest[k] = True
+            f = g
+        else:
+            f += 1
     out, cur = [], dict(rest)
     for f, sh in enumerate(track):
-        tgt = dict(rest) if sh == 'X' else dict(P[sh])
+        tgt = (dict(SOFT) if soft_rest[f] else dict(rest)) if sh == 'X' else dict(P[sh])
         if sh != 'X':
             loud = float(energy[f]) if f < len(energy) else 0.0
             k = open_scale * (0.82 + 0.3 * min(1.2, loud)) * (1.12 if stress[f] else 1.0)
             tgt['top'] *= k
             tgt['bot'] *= k
-        a = 0.88 if sh == 'A' else (0.45 if sh == 'X' else 0.62)
+        a = 0.88 if sh == 'A' else ((0.5 if soft_rest[f] else 0.28) if sh == 'X' else 0.62)
         cur = {kk: cur[kk] + (tgt[kk] - cur[kk]) * a for kk in KEYS}
         out.append(dict(cur))
     return out

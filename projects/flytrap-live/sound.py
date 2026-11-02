@@ -13,7 +13,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, '..', '..', 'tools'))
-from cues import DROP_LAND, END, FLY_TOUCH, SNAP, START, WIGGLES, at, bee_offset  # noqa: E402
+from cues import COUNT9, DROP_LAND, END, FLY_TOUCH, SNAP, START, WIGGLES, at, bee_offset  # noqa: E402
 from synth import (SR, Mix, bass, bell, boing, clap, clonk, gulp, hat, onepole, pad, pluck, pop, rain_noise,  # noqa: E402
                    reverb, slide_whistle, snap, thud, thud_short, tick, tt, tweet, twinkle, whoosh, write_wav)
 
@@ -191,9 +191,9 @@ def build(with_voice=True):
     sfx(pop(), at('fraction'), 0.45, 0.5)
     sfx(bell(96, 1.0, 0.55), at('fraction') + 0.05, 0.5, 0.5)
     # ---- shot 9: counting on his fingers ----
-    for i, ti in enumerate((at('doesnt') - 0.05, at('stop'), at('counting'), at('counting') + 0.42)):
-        sfx(pop(), ti, 0.35, 0.2)
-        sfx(bell(84 + (0, 2, 4, 7)[i], 0.6, 0.5), ti + 0.02, 0.35, 0.2)
+    for i, ti in enumerate(COUNT9):                                       # one tap + rising note per counted trap
+        sfx(clonk(1500, 0.4), ti + 0.05, 0.3, 0.2)
+        sfx(bell(84 + (0, 2, 4, 5, 7)[i], 0.6, 0.5), ti + 0.07, 0.4, 0.2)
     # ---- shot 10: the struggles and the juice ----
     for i, tw in enumerate(WIGGLES):
         sfx(squish(30 + i), tw, 0.55, 0.1)
