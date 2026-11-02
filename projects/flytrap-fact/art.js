@@ -315,53 +315,82 @@ function fly(x, y, s, o = {}) {
   return G(`translate(${wf(x)} ${wf(y)}) scale(${wf(s * -face)} ${wf(s)})`, legs + wing(6, wa - 14) + body + head + eye(-19, -6, 5.5) + eye(-11.5, -7.5, 5) + wing(0, wa + 6));
 }
 
-// ===================== the stickman =====================
+// ===================== the student (character study "design unit") =====================
+// Round head, thin cream limbs with mannequin joint bands, big rounded feet; outfit: blue knit
+// turtleneck with ribbed collar, cuffs and hem, and a green backpack on one shoulder.
 // p: armL/armR = [shoulder deg, elbow deg] (screen angles, 90 = straight down),
-// handL/handR = {type, rot}, legL/legR = deg (90 = down), face, look [x,y], blink, lean, bob
+// handL/handR = {type, rot}, legL/legR = deg or [hip deg, knee deg], face, look [x,y], blink, lean, bob
 function stickman(x, y, s, p = {}) {
   const lean = p.lean || 0, bob = p.bob || 0;
-  const hipY = -165, shY = -290;
+  const hipY = -168, shY = -292;
   const dir = (a) => [Math.cos((a * Math.PI) / 180), Math.sin((a * Math.PI) / 180)];
-  // legs
-  const legs = [[-19, p.legL ?? 92], [19, p.legR ?? 88]].map(([hx, a]) => {
-    const [dx, dy] = dir(a), L = 140;
-    return { hx, hy: hipY, ax: hx + dx * L, ay: hipY + dy * L, a };
-  });
-  let o = '';
   const caps = (pts, r, c) => pts.slice(1).map((q, i) => `<path d="${P.capsule(pts[i][0], pts[i][1], q[0], q[1], r)}" fill="${c}"/>`).join('');
-  const segInk = (pts, w) => caps(pts, w / 2 + 3.4, WC.ink);
-  const segCol = (pts, w, c) => caps(pts, w / 2, c);
-  o += legs.map((l) => segInk([[l.hx, l.hy], [l.ax, l.ay]], 34)).join('');
-  o += paintG(legs.map((l) => segCol([[l.hx, l.hy], [l.ax, l.ay]], 34, COL.trousers)).join(''), { v: 60, s: 11, k: 0.9, gs: s });
-  // shoes
-  legs.forEach((l, i) => {
-    const m = i === 0 ? -1 : 1;
-    const d = `M ${wf(l.ax - 4 * m)} ${wf(l.ay - 6)} Q ${wf(l.ax + 26 * m)} ${wf(l.ay - 10)} ${wf(l.ax + 30 * m)} ${wf(l.ay + 6)} Q ${wf(l.ax + 30 * m)} ${wf(l.ay + 16)} ${wf(l.ax + 6 * m)} ${wf(l.ay + 16)} L ${wf(l.ax - 14 * m)} ${wf(l.ay + 16)} Q ${wf(l.ax - 22 * m)} ${wf(l.ay + 4)} ${wf(l.ax - 4 * m)} ${wf(l.ay - 6)} Z`;
-    o += paint(d, COL.shoe, { v: 30, s: 3 + i, k: 0.5, ink: 3.2 });
+  const tube = (pts, w, c, opts) => caps(pts, w / 2 + 3.2, WC.ink) + paintG(caps(pts, w / 2, c), opts);
+  const band = (x0, y0, ang, w, h) => G(tr(x0, y0, ang - 90), paint(P.rrect(-w / 2, -h / 2, w, h, h / 2), COL.skin, { v: 20, s: 3, k: 0.35, ink: 2.6 }));
+  let o = '';
+  // legs: thin jointed tubes ending in big feet
+  const legs = [[-21, p.legL ?? 93, -1], [21, p.legR ?? 87, 1]].map(([hx, a, side]) => {
+    const [a1, a2] = Array.isArray(a) ? a : [a, a];
+    const [d1x, d1y] = dir(a1), [d2x, d2y] = dir(a2);
+    const knee = [hx + d1x * 70, hipY + d1y * 70], ankle = [knee[0] + d2x * 66, knee[1] + d2y * 66];
+    return { side, hip: [hx, hipY], knee, ankle, a1, a2 };
   });
-  // torso
-  const torso = `M -58 ${shY + 8} Q -60 ${shY - 6} -44 ${shY - 8} L 44 ${shY - 8} Q 60 ${shY - 6} 58 ${shY + 8} L 54 ${hipY - 4} Q 54 ${hipY + 8} 42 ${hipY + 8} L -42 ${hipY + 8} Q -54 ${hipY + 8} -54 ${hipY - 4} Z`;
-  let up = paint(torso, COL.sweater, { v: 60, s: 12, k: 1, ink: 3.4, gs: s });
-  up += ink(`M -50 ${hipY - 10} Q 0 ${hipY - 6} 50 ${hipY - 10}`, 2, '#6f8fa5');
-  // neck + head
-  up += paint(P.rrect(-8, shY - 30, 16, 26, 5), COL.skin, { v: 20, s: 2, k: 0.35, ink: 3 });
+  for (const l of legs) {
+    o += tube([l.hip, l.knee, l.ankle], 15, COL.skin, { v: 40, s: 21 + l.side, k: 0.35, gs: s });
+    o += band(l.knee[0], l.knee[1], (l.a1 + l.a2) / 2, 20, 11);
+    const m = l.side, [ax, ay] = l.ankle;
+    const foot = `M ${wf(ax - 14 * m)} ${wf(ay - 8)} Q ${wf(ax + 12 * m)} ${wf(ay - 14)} ${wf(ax + 40 * m)} ${wf(ay - 2)} Q ${wf(ax + 52 * m)} ${wf(ay + 6)} ${wf(ax + 44 * m)} ${wf(ay + 15)} ` +
+      `Q ${wf(ax + 20 * m)} ${wf(ay + 21)} ${wf(ax - 8 * m)} ${wf(ay + 17)} Q ${wf(ax - 24 * m)} ${wf(ay + 12)} ${wf(ax - 20 * m)} ${wf(ay + 1)} Q ${wf(ax - 18 * m)} ${wf(ay - 6)} ${wf(ax - 14 * m)} ${wf(ay - 8)} Z`;
+    o += paint(foot, COL.skin, { v: 30, s: 23 + m, k: 0.4, ink: 3.2 });
+  }
+  // backpack behind the body (character's right shoulder = viewer's left)
+  let up = paint(P.rrect(-96, shY + 4, 58, 112, 20), wcLinear('packG', [[0, '#93ba68'], [1, '#6f9a4c']]), { v: 40, s: 31, k: 0.8, ink: 3.2, gs: s });
+  up += paint(P.rrect(-100, shY + 40, 22, 48, 9), '#7aa555', { v: 20, s: 32, k: 0.7, ink: 2.8 });
+  up += ink(`M -84 ${shY + 4} q 12 -14 26 0`, 3);
+  // sweater body with ribbed hem and knit marks
+  const torso = `M -56 ${shY + 10} Q -58 ${shY - 6} -42 ${shY - 8} L 42 ${shY - 8} Q 58 ${shY - 6} 56 ${shY + 10} L 54 ${hipY - 2} L -54 ${hipY - 2} Z`;
+  up += paint(torso, COL.sweater, { v: 60, s: 12, k: 1, ink: 3.4, gs: s });
+  const hem = P.rrect(-57, hipY - 14, 114, 18, 7);
+  up += paint(hem, '#9dbfd3', { v: 30, s: 13, k: 0.7, ink: 3, gs: s });
+  let rib = '';
+  for (let xx = -50; xx <= 50; xx += 6) rib += `M ${xx} ${hipY - 11} V ${hipY + 1} `;
+  up += ink(rib, 1.3, '#6f90a6');
+  const rk = mulberry(17);
+  let knit = '';
+  for (let yy = shY + 18; yy < hipY - 22; yy += 13) {
+    for (let xx = -44; xx <= 44; xx += 11) {
+      const jx = xx + (rk() - 0.5) * 6, jy = yy + (rk() - 0.5) * 5;
+      if (rk() < 0.55) knit += `M ${wf(jx)} ${wf(jy)} l ${wf((rk() - 0.5) * 2)} 5 `;
+    }
+  }
+  up += ink(knit, 1.4, '#7c9db4');
+  // strap over the shoulder, in front of the sweater
+  up += paint('M -40 ' + (shY - 6) + ' Q -30 ' + (shY + 30) + ' -36 ' + (shY + 92) + ' L -24 ' + (shY + 92) + ' Q -18 ' + (shY + 30) + ' -28 ' + (shY - 8) + ' Z', '#7fa95a', { v: 20, s: 33, k: 0.7, ink: 2.8 });
+  // neck, turtleneck collar, head
+  up += paint(P.rrect(-7, shY - 34, 14, 22, 5), COL.skin, { v: 20, s: 2, k: 0.35, ink: 3 });
+  up += paint(P.rrect(-26, shY - 26, 52, 26, 9), '#a4c5d9', { v: 30, s: 14, k: 0.7, ink: 3, gs: s });
+  let crib = '';
+  for (let xx = -20; xx <= 20; xx += 6) crib += `M ${xx} ${shY - 22} V ${shY - 4} `;
+  up += ink(crib, 1.3, '#6f90a6');
   const hy = -372;
-  up += paint(P.circle(0, hy, 60), COL.skin, { v: 60, s: 13, k: 0.35, ink: 3.4 });
+  up += paint(P.circle(0, hy, 58), COL.skin, { v: 60, s: 13, k: 0.35, ink: 3.4 });
+  up += `<path d="M ${-40} ${hy + 38} A 58 58 0 0 1 ${-50} ${hy - 26}" fill="none" stroke="#d9cbb6" stroke-width="7" stroke-linecap="round" opacity="0.55"/>`;
   up += face(p.face || 'smile', p.look || [0, 0], p.blink || 0, hy);
-  // arms
+  // knit sleeves with ribbed cuffs, mitten hands
   const arms = [[-50, p.armL || [100, 96], p.handL, -1], [50, p.armR || [80, 84], p.handR, 1]];
-  let armInk = '', armCol = '', hands = '';
+  let sleeves = '', cuffs = '', hands = '';
   for (const [sx, [a1, a2], hand, side] of arms) {
     const [d1x, d1y] = dir(a1), [d2x, d2y] = dir(a2);
-    const e = [sx + d1x * 76, shY + 4 + d1y * 76], w = [e[0] + d2x * 66, e[1] + d2y * 66];
-    const pts = [[sx, shY + 4], e, w];
-    armInk += segInk(pts, 29);
-    armCol += segCol(pts, 29, COL.sweater);
+    const e = [sx + d1x * 74, shY + 6 + d1y * 74], w = [e[0] + d2x * 56, e[1] + d2y * 56];
+    sleeves += tube([[sx, shY + 6], e, w], 30, COL.sweater, { v: 60, s: 15 + side, k: 1, gs: s });
+    const c0 = [w[0] - d2x * 4, w[1] - d2y * 4];
+    cuffs += G(tr(c0[0], c0[1], a2 - 90), paint(P.rrect(-17, -7, 34, 14, 6), '#9dbfd3', { v: 20, s: 16, k: 0.6, ink: 2.8 }) + ink('M -10 -5 V 5 M -4 -5 V 5 M 2 -5 V 5 M 8 -5 V 5', 1.2, '#6f90a6'));
     const h = hand || {};
-    hands += handShape(w[0], w[1], h.type || 'rest', h.rot ?? a2 - 90, side, h.n);
+    hands += handShape(w[0] + d2x * 4, w[1] + d2y * 4, h.type || 'rest', h.rot ?? a2 - 90, side, h.n);
   }
-  up += armInk + paintG(armCol, { v: 60, s: 14, k: 1, gs: s }) + hands;
-  return G(`translate(${wf(x)} ${wf(y + bob * s)}) scale(${wf(s)})`, cut(o + G(`rotate(${wf(lean)} 0 ${hipY})`, up), 6, 0.28));
+  up += sleeves + hands + cuffs;
+  const shadow = `<ellipse cx="0" cy="8" rx="78" ry="13" fill="#5a4a33" opacity="0.16" filter="url(#${wcBlurFilter(5)})"/>`;
+  return G(`translate(${wf(x)} ${wf(y)}) scale(${wf(s)})`, shadow + G(`translate(0 ${wf(bob)})`, cut(o + G(`rotate(${wf(lean)} 0 ${hipY})`, up), 6, 0.28)));
 }
 
 function face(expr, look, blink, hy) {
