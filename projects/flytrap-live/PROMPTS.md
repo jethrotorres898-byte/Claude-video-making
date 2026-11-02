@@ -3,8 +3,35 @@
 The frame-by-frame method brings real pictures to life, so it needs one picture per shot in your
 style. Make them in the same app you used for the living-room picture and attach that picture to
 every prompt. The prompts say to use it only for the art style and the character, and each prompt
-describes its own scene. Send me all 12. I'll animate each one, cut them to your narration
+describes its own scene. Send me all 14. I'll animate each one, cut them to your narration
 (`projects/flytrap-fact/voice.mp3`, 44 s) and add sound effects.
+
+## Narration (with the call to action)
+
+Generate this in ElevenLabs with the same voice and settings. Only the last paragraph is new, so you
+can also generate just that paragraph and I'll join it onto the voice you already sent.
+
+```
+Did you know a Venus flytrap can actually count? And no, this isn't a joke. This plant really keeps score.
+
+Inside its trap are tiny trigger hairs. If something touches just one... nothing happens. It could only be a raindrop.
+
+But if a second hair gets touched within about twenty seconds... SNAP! The trap slams shut in a fraction of a second.
+
+And it doesn't stop counting. Every time the bug struggles, the plant counts it... and makes even more digestive juice.
+
+It counts so it never wastes energy on a false alarm. A plant... that can count.
+
+So be honest... would you put your finger in one? Yes or no, tell me in the comments. And follow, because the next plant can actually hear.
+```
+
+"The next plant can actually hear" teases the next video: evening primrose flowers make sweeter nectar
+within minutes of hearing a bee buzz (Veits et al., Ecology Letters, 2019). Change it if you'd rather
+do a different plant next.
+
+**Pinned comment:** `Be honest: would you put your finger in a Venus flytrap? 👇 YES or NO`
+
+**Description:** `A plant that can COUNT?! 🌱 Follow for a new plant fact every week. #plants #venusflytrap #science #shorts`
 
 ## Rules for every plant-facts video
 
@@ -15,6 +42,8 @@ describes its own scene. Send me all 12. I'll animate each one, cut them to your
 - **Pick the places from the topic.** Use where the plant really grows (its wild habitat), a
   greenhouse or garden for the presenter shots, and weather that matches the narration (rain for
   "raindrop").
+- **End with a call to action:** an easy yes/no question for the comments, then "follow" with a
+  teaser for the next plant, shown in the last shot.
 
 Format: vertical 9:16 for Shorts. For a 16:9 video, change "Vertical 9:16" to "Horizontal 16:9" in every prompt.
 
@@ -33,7 +62,11 @@ Format: vertical 9:16 for Shorts. For a 16:9 video, change "Vertical 9:16" to "H
 | 9 | 26.7-30.2 s | "And it doesn't stop counting." | boardwalk, crouching | slow push-in, he blinks |
 | 10 | 30.2-35.5 s | "Every time the bug struggles, the plant counts it... and makes even more digestive juice." | bog, macro | the trap wiggles on each struggle, juice shines |
 | 11 | 35.5-39.3 s | "It counts so it never wastes energy on a false alarm." | rain shower on the boardwalk | rain falls, the traps stay open |
-| 12 | 39.3-44.2 s | "A plant... that can count. Follow for more plant facts!" | back in the greenhouse | pull-back, he smiles |
+| 12 | ~39.3-41.8 s | "A plant... that can count." | back in the greenhouse | slow push-in, he blinks in awe |
+| 13 | ~41.8-46.5 s | "So be honest... would you put your finger in one? Yes or no, tell me in the comments." | greenhouse, plant up to the camera | the trap twitches toward the viewer; on-screen "YES or NO? 💬" |
+| 14 | ~46.5-50 s | "And follow, because the next plant can actually hear." | greenhouse, evening primrose and a bee | the bee buzzes, he winks; on-screen "Follow for part 2 👂🌸" |
+
+Times for 12-14 are estimates until the new voice is in; I re-time every cut to it.
 
 ## Prompts
 
@@ -94,5 +127,15 @@ Vertical 9:16 storybook illustration in exactly the same art style as the attach
 
 ### 12
 ```
-Vertical 9:16 storybook illustration in exactly the same art style as the attached picture: soft watercolor washes, thin dark ink outlines, warm muted colours, light paper texture, gentle shading. Use the attached picture only for the art style and the character. The character: a simple figure with a big round plain white head, two small black dot eyes, small curved eyebrows, a big happy smile, grey-blue knit turtleneck sweater, green backpack, brown trousers, white shoes. Scene: inside a bright sunny glass greenhouse, white metal frames and glass panes, wooden benches full of potted plants, hanging ferns, golden late-afternoon light. He faces the viewer holding a small terracotta pot with a Venus flytrap in one arm and giving a thumbs up with the other hand. Medium shot from the knees up. No text, no captions, no speech bubbles.
+Vertical 9:16 storybook illustration in exactly the same art style as the attached picture: soft watercolor washes, thin dark ink outlines, warm muted colours, light paper texture, gentle shading. Use the attached picture only for the art style and the character. The character: a simple figure with a big round plain white head, two small black dot eyes, small curved eyebrows, grey-blue knit turtleneck sweater, green backpack, brown trousers, white shoes. Scene: inside a bright sunny glass greenhouse, white metal frames and glass panes, wooden benches full of potted plants, hanging ferns, golden late-afternoon light. He holds a small terracotta pot with a Venus flytrap in both hands and gazes down at it in awe, eyebrows raised, a small amazed smile. Medium shot from the knees up. No text, no captions, no speech bubbles.
+```
+
+### 13
+```
+Vertical 9:16 storybook illustration in exactly the same art style as the attached picture: soft watercolor washes, thin dark ink outlines, warm muted colours, light paper texture, gentle shading. Use the attached picture only for the art style and the character. The character: a simple figure with a big round plain white head, two small black dot eyes, small curved eyebrows, a cheeky grin, grey-blue knit turtleneck sweater, green backpack. Scene: inside a bright sunny glass greenhouse with blurred benches of potted plants and glass panes behind him. He holds the small potted Venus flytrap up close to the viewer, so one wide-open trap fills the foreground pointing at the viewer, and with his other hand he points at the viewer with one eyebrow raised, daring them. No text, no captions, no speech bubbles.
+```
+
+### 14
+```
+Vertical 9:16 storybook illustration in exactly the same art style as the attached picture: soft watercolor washes, thin dark ink outlines, warm muted colours, light paper texture, gentle shading. Use the attached picture only for the art style and the character. The character: a simple figure with a big round plain white head, two small black dot eyes, small curved eyebrows, a playful smile, grey-blue knit turtleneck sweater, green backpack, brown trousers, white shoes. Scene: inside a bright sunny glass greenhouse, wooden benches full of potted plants, golden late-afternoon light. He leans toward a pot of yellow evening primrose flowers with one hand cupped behind where his ear would be, as if listening to the flowers, while a small fuzzy bee hovers next to a blossom. He glances at the viewer with a playful, mysterious smile. Medium shot. No text, no captions, no speech bubbles.
 ```
